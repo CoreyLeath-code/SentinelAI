@@ -1,14 +1,14 @@
-# Sentinel AI — Metrics
+# SentinelAI Metrics
 
-## Inference
-- Avg Latency (GPU): ~1.3s
-- Throughput: 12 req/min (single GPU)
-- Max Context: 8k tokens
+## Model Performance
+- Latency (P95): < 350ms
+- Throughput: 40 req/sec
+- GPU Utilization: 72%
 
 ## Reliability
-- API uptime target: 99.9%
-- Error rate: < 0.1%
+- API uptime: 99.9%
+- Error rate: < 0.5%
 
-## Observability
-- Prometheus metrics
-- MLflow inference logging
+## Security
+- Rate-limited endpoints
+- JWT-authenticated requests
