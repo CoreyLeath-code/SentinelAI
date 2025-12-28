@@ -1,25 +1,18 @@
 SentinelAI/
+├── api/
+│   ├── main.py
+│   ├── auth.py
+│   ├── rate_limit.py
+│   └── inference.py
 ├── frontend/
-│   ├── app/
-│   │   ├── layout.tsx
-│   │   ├── page.tsx
-│   │   └── dashboard/page.tsx
-│   ├── components/
-│   │   ├── Navbar.tsx
-│   │   └── MetricCard.tsx
-│   ├── lib/
-│   │   └── api.ts
-│   ├── styles/
-│   │   └── globals.css
-│   ├── tailwind.config.ts
-│   ├── tsconfig.json
-│   ├── package.json
-│   └── next.config.js
-k8s/
-├── namespace.yaml
-├── backend-deployment.yaml
-├── backend-service.yaml
-├── frontend-deployment.yaml
-├── frontend-service.yaml
-├── gpu-node-selector.yaml
-├── prometheus-service-monitor.yaml
+│   └── streamlit_app.py
+├── mlflow/
+│   └── tracking.py
+├── tests/
+│   └── test_api.py
+├── docker/
+│   └── Dockerfile
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+├── requirements.txt
