@@ -1,14 +1,12 @@
-# Contributing to Sentinel AI
+# Contributing to SentinelAI
 
-## Setup
-- Python 3.11
-- Docker with NVIDIA runtime
+## How to Contribute
+1. Fork the repo
+2. Create a feature branch
+3. Add tests
+4. Submit PR
 
-## Standards
+## Code Standards
 - Black formatting
-- Type hints required
-- Tests for new features
-
-## Pull Requests
-- Must pass CI
-- Must include tests
+- Pytest required
+- Type hints encouraged
