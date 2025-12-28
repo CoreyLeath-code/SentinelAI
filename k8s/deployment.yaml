@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentinelai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sentinelai
+  template:
+    metadata:
+      labels:
+        app: sentinelai
+    spec:
+      containers:
+        - name: sentinelai
+          image: trojan3877/sentinelai:latest
+          ports:
+            - containerPort: 8000
+          resources:
+            limits:
+              nvidia.com/gpu: 1
