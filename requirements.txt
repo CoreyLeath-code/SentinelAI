@@ -2,9 +2,8 @@ fastapi
 uvicorn
 torch
 transformers
-mlflow
-prometheus-client
-slowapi
 streamlit
-requests
+mlflow
+slowapi
 pytest
+requests
