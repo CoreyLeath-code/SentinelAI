@@ -1,41 +1,54 @@
 SentinelAI 
 <img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/33e7a5fb-be0a-495b-a950-7a14b9aedb4b" />
 
- Production-Grade AI Inference & Monitoring Platform
+# 🛡 SentinelAI — Production-Grade AI Inference Platform
 
-![CI](https://github.com/Trojan3877/SentinelAI/actions/workflows/ci.yml/badge.svg)
-![Docker](https://img.shields.io/badge/docker-ready-blue)
-![Kubernetes](https://img.shields.io/badge/kubernetes-orchestrated-blue)
-![CUDA](https://img.shields.io/badge/NVIDIA-CUDA-green)
-![LLM](https://img.shields.io/badge/LLM-Llama%203-orange)
-![FastAPI](https://img.shields.io/badge/API-FastAPI-teal)
-![TypeScript](https://img.shields.io/badge/frontend-TypeScript-blue)
-![MLflow](https://img.shields.io/badge/MLflow-tracking-purple)
-![Prometheus](https://img.shields.io/badge/metrics-Prometheus-red)
-![Level](https://img.shields.io/badge/Portfolio-L7%20Production-success)
+![Python](https://img.shields.io/badge/Python-3.10-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-Production-green)
+![CUDA](https://img.shields.io/badge/NVIDIA-CUDA-success)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-GPU-blue)
+![CI/CD](https://img.shields.io/badge/GitHub%20Actions-CI/CD-brightgreen)
+![MLFlow](https://img.shields.io/badge/MLflow-Tracking-blue)
+![L7](https://img.shields.io/badge/Engineering%20Level-L7-black)
 
----
-
-🚀 Overview
-SentinelAI is a **full-stack, GPU-accelerated AI platform** designed for **secure inference, monitoring, and observability** using modern MLOps and platform engineering practices.
-
-Built to **Big Tech production standards**, not coursework demos.
+SentinelAI is a **full-stack, GPU-accelerated AI inference platform** designed for **real-world production deployment**.  
+Built with **FastAPI, CUDA, Llama 3, Kubernetes, CI/CD, MLFlow, Prometheus, and Streamlit**.
 
 ---
 
-🧠 System Architecture
+## 🚀 Features
+
+- 🔥 Llama 3 inference (CUDA-accelerated)
+- ⚡ FastAPI REST API
+- 📊 Streamlit live dashboard
+- 📦 Docker + Render deployment
+- ☸️ Kubernetes GPU orchestration
+- 📈 Prometheus monitoring
+- 🤖 N8N automation workflows
+- 🔐 Rate-limiting & auth ready
+- 🧪 Test suite + CI/CD
+
+---
+
+## 🧠 System Architecture
+
+![SentinelAI Architecture](SentinelAI_Architecture.png)
+
+---
+
+## ⚙️ Quick Start
+
+```bash
+git clone https://github.com/Trojan3877/SentinelAI
+cd SentinelAI
+pip install -r requirements.txt
+uvicorn api.main:app --reload
 
 
-    U --> FE
-    FE --> API
-    API --> AUTH
-    AUTH --> LLM
-    LLM --> GPU
-    GPU --> K8S
-    API --> ML
-    API --> MET
-    CI --> RENDER
-    RENDER --> K8S
+
+
+
+ 
 <img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/4cbc93b4-a7ba-4615-9ddb-82f06745151a" />
 
 
