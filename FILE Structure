@@ -16,3 +16,15 @@ SentinelAI/
 │   └── workflows/
 │       └── ci.yml
 ├── requirements.txt
+SentinelAI/
+├── k8s/
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   └── gpu-node.yaml
+├── monitoring/
+│   └── prometheus.yml
+├── n8n/
+│   └── sentinel-workflow.json
+├── metrics.md
+├── dailylog.md
+├── contributing.md
