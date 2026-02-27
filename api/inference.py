@@ -1,20 +1,13 @@
-from fastapi import APIRouter
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from core.model import SentinelModel
 
-router = APIRouter()
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-MODEL_NAME = "meta-llama/Meta-Llama-3-8B"
+model = SentinelModel().to(device)
+model.eval()
 
-tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-model = AutoModelForCausalLM.from_pretrained(
-    MODEL_NAME,
-    torch_dtype=torch.float16,
-    device_map="auto"
-)
-
-@router.post("/")
-def infer(prompt: str):
-    inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-    output = model.generate(**inputs, max_new_tokens=100)
-    return {"response": tokenizer.decode(output[0], skip_special_tokens=True)}
+def run_inference(features):
+    tensor = torch.tensor(features, dtype=torch.float32).to(device)
+    with torch.no_grad():
+        output = model(tensor)
+    return output.cpu().numpy().tolist()
