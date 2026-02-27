@@ -1,30 +1,36 @@
 SentinelAI/
+│
 ├── api/
-│   ├── main.py
-│   ├── auth.py
-│   ├── rate_limit.py
-│   └── inference.py
-├── frontend/
+│   └── main.py
+│
+├── core/
+│   ├── model.py
+│   ├── inference.py
+│   └── config.py
+│
+├── ingestion_cpp/
+│   ├── ingestion.cpp
+│   ├── CMakeLists.txt
+│   └── bindings.cpp
+│
+├── orchestration/
+│   └── infinity_flow_pipeline.py
+│
+├── dashboard/
 │   └── streamlit_app.py
-├── mlflow/
+│
+├── mlflow_tracking/
 │   └── tracking.py
+│
+├── monitoring/
+│   └── metrics.py
+│
 ├── tests/
 │   └── test_api.py
-├── docker/
-│   └── Dockerfile
-├── .github/
-│   └── workflows/
-│       └── ci.yml
+│
+├── Dockerfile
+├── docker-compose.yml
 ├── requirements.txt
-SentinelAI/
-├── k8s/
-│   ├── deployment.yaml
-│   ├── service.yaml
-│   └── gpu-node.yaml
-├── monitoring/
-│   └── prometheus.yml
-├── n8n/
-│   └── sentinel-workflow.json
-├── metrics.md
-├── dailylog.md
-├── contributing.md
+├── .github/workflows/ci.yml
+├── Metrics.md
+└── README.md (LAST)
