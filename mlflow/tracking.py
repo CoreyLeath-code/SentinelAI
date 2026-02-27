@@ -1,8 +1,9 @@
 import mlflow
+import mlflow.pytorch
 
-mlflow.set_experiment("SentinelAI")
-
-def log_run(prompt, response):
+def log_model(model, metrics: dict):
+    mlflow.set_experiment("SentinelAI")
     with mlflow.start_run():
-        mlflow.log_param("prompt", prompt)
-        mlflow.log_text(response, "response.txt")
+        mlflow.pytorch.log_model(model, "model")
+        for key, value in metrics.items():
+            mlflow.log_metric(key, value)
