@@ -1,27 +1,40 @@
-# SentinelAI Production Metrics
+# SentinelAI — Performance & Evaluation Metrics
+
+## Drift Detection Metrics
+
+| Metric | Description |
+|--------|------------|
+| PSI | Population Stability Index |
+| KS Statistic | Kolmogorov-Smirnov test |
+| Drift Threshold | Configurable alert threshold |
+
+---
 
 ## Model Performance
 
 | Metric | Value |
 |--------|-------|
-| Accuracy | 0.91 |
-| F1 Score | 0.88 |
-| Precision | 0.89 |
-| Recall | 0.87 |
+| Precision | TBD |
+| Recall | TBD |
+| ROC-AUC | TBD |
+| F1 Score | TBD |
 
-## Inference Performance
+---
 
-| Metric | Value |
-|--------|-------|
-| Avg Latency | 34 ms |
-| p95 Latency | 79 ms |
-| Throughput | 145 req/s |
-| GPU Utilization | 72% |
+## LLM Monitoring
 
-## Load Testing (Locust)
+| Metric | Description |
+|--------|------------|
+| Hallucination Score | Confidence-based hallucination probability |
+| Token Usage | Tokens per request |
+| Latency | Response time per inference |
 
-| Virtual Users | Avg Response Time | Failure Rate |
-|---------------|------------------|--------------|
-| 50 | 42 ms | 0% |
-| 100 | 68 ms | 0.2% |
-| 200 | 110 ms | 1.1% |
+---
+
+## Infrastructure
+
+| Metric | Description |
+|--------|------------|
+| P95 Latency | 95th percentile response time |
+| Throughput | Requests per second |
+| Cost per 1k requests | Cloud compute estimate |
