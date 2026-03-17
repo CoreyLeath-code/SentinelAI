@@ -1,8 +1,14 @@
+#include <cassert>
 #include <vector>
-#include <algorithm>
 
-std::vector<float> process(std::vector<float> input) {
-    std::transform(input.begin(), input.end(), input.begin(),
-        [](float x) { return x * 1.1f; });
-    return input;
+extern double calculate_psi(const std::vector<double>&, const std::vector<double>&);
+
+int main() {
+    std::vector<double> baseline = {0.25,0.25,0.25,0.25};
+    std::vector<double> current  = {0.25,0.25,0.25,0.25};
+
+    double psi = calculate_psi(baseline, current);
+    assert(psi < 0.01);
+
+    return 0;
 }
