@@ -1,0 +1,11 @@
+provider "aws" {
+  region = "us-east-1"
+}
+
+resource "aws_s3_bucket" "sentinel_logs" {
+  bucket = "sentinelai-log-storage"
+}
+
+resource "aws_ecr_repository" "sentinel_repo" {
+  name = "sentinelai-repo"
+}
