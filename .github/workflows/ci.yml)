@@ -1,25 +1,6 @@
-name: SentinelAI CI
-
-on:
-  push:
-    branches: [ main ]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          pip install -r streamlit-dashboard/requirements.txt
-
-      - name: Run basic test
-        run: |
-          echo "CI pipeline running successfully"
+- name: Build C++ Drift Engine
+  run: |
+    cd drift-engine
+    g++ drift_engine.cpp -o drift_engine
+    g++ test.cpp drift_engine.cpp -o test_runner
+    ./test_runner
