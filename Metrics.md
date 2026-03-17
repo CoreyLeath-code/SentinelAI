@@ -38,3 +38,14 @@
 | P95 Latency | 95th percentile response time |
 | Throughput | Requests per second |
 | Cost per 1k requests | Cloud compute estimate |
+
+
+## Performance Benchmarks
+
+| Component | Metric | Result |
+|------------|--------|--------|
+| C++ Drift Engine | PSI calculation time | < 2ms |
+| Go Ingestion API | P95 latency | 180ms |
+| LLM Guard | Avg summarization time | 1.2s |
+| Throughput | Requests/sec | 150 RPS |
+| Docker container startup | Cold start | < 3s |
