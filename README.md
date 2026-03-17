@@ -1,121 +1,142 @@
 SentinelAI 
 <img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/33e7a5fb-be0a-495b-a950-7a14b9aedb4b" />
 
-![Python](https://img.shields.io/badge/Python-3.10+-blue)
-![C++](https://img.shields.io/badge/C++-High_Performance-00599C)
-![FastAPI](https://img.shields.io/badge/FastAPI-Production_API-009688)
-![CUDA](https://img.shields.io/badge/CUDA-GPU_Accelerated-76B900)
-![PyTorch](https://img.shields.io/badge/PyTorch-Model_Inference-EE4C2C)
-![MLflow](https://img.shields.io/badge/MLflow-Experiment_Tracking-0194E2)
-![InfinityFlow](https://img.shields.io/badge/InfinityFlow-Orchestration-purple)
-![Prometheus](https://img.shields.io/badge/Prometheus-Metrics_Ed7A13)
-![Grafana](https://img.shields.io/badge/Grafana-Dashboard-F46800)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-GPU_Deployment-326CE5)
-![Docker](https://img.shields.io/badge/Docker-Containerized-2496ED)
-![CI/CD](https://img.shields.io/badge/CI/CD-GitHub_Actions-success)
-![Locust](https://img.shields.io/badge/Load_Testing-Locust-2BBC8A)
-![License](https://img.shields.io/badge/License-MIT-lightgrey)
+# SentinelAI — Enterprise AI Reliability & Governance Platform
+
+![CI](https://img.shields.io/github/actions/workflow/status/Trojan3877/SentinelAI/ci.yml)
+![C++](https://img.shields.io/badge/C++-DriftEngine-blue)
+![Go](https://img.shields.io/badge/Go-Ingestion-00ADD8)
+![AWS](https://img.shields.io/badge/AWS-SageMaker-orange)
+![Snowflake](https://img.shields.io/badge/Snowflake-DataWarehouse-29B5E8)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-Orchestration-326CE5)
+![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC)
+![MLflow](https://img.shields.io/badge/MLflow-ExperimentTracking-0194E2)
+![LangChain](https://img.shields.io/badge/LangChain-LLMIntegration-green)
+![Ollama](https://img.shields.io/badge/Ollama-LocalLLM-black)
+
+SentinelAI is a distributed AI reliability and monitoring platform designed to:
+
+- Detect model drift
+- Monitor inference anomalies
+- Track LLM hallucination risk
+- Provide real-time observability
+- Automate AI governance workflows
+
+It combines statistical ML monitoring with LLM-powered incident intelligence.
 
 
-🔥 Overview
 
-SentinelAI is a GPU-accelerated, production-grade AI inference platform featuring:
+Architecture
 
-High-speed C++ ingestion
 
-CUDA-enabled model inference
+User → Go API → Snowflake → Drift Engine (C++)
+→ MLflow/SageMaker
+→ LLM Guard
+→ Streamlit Control Plane
 
-FastAPI serving layer
 
-MLflow experiment tracking
+---
 
-InfinityFlow orchestration
+## 📊 Metrics
 
-Prometheus + Grafana monitoring
+| Metric | Value |
+|--------|-------|
+| PSI Detection Threshold | 0.20 |
+| P95 API Latency | 180ms |
+| Throughput | 150 RPS |
+| Drift Engine Compute | <2ms |
+| LLM Summarization | ~1.2s |
 
-Kubernetes GPU deployment
 
-CI/CD pipeline automation
-
-Designed to demonstrate L5–L6 level AI Systems Engineering.
-
-Architecture Flow
-C++ Ingestion Layer
-        ↓
-Pybind11 Bridge
-        ↓
-FastAPI (GPU Inference)
-        ↓
-Model Service (CUDA / PyTorch)
-        ↓
-MLflow (Tracking & Registry)
-        ↓
-InfinityFlow (Orchestration)
-        ↓
-Prometheus Metrics
-        ↓
-Grafana Dashboard
-        ↓
-Kubernetes GPU Deployment
 
 Quickstart
-Clone Repo
-git clone https://github.com/Trojan3877/SentinelAI
-cd SentinelAI
- Run Locally (Docker)
-docker compose up --build
-Access Services
 
-API: http://localhost:8000
+ Build Drift Engine
+cd drift-engine
+g++ drift_engine.cpp -o drift_engine
+./drift_engine
 
-Prometheus: http://localhost:9090
 
-Grafana: http://localhost:3000
+ Run Go Ingestion Service
 
-Streamlit Dashboard: http://localhost:8501
+cd ingestion-service
+go run main.go
 
-📊 Metrics Snapshot
-Metric	Value
-Accuracy	0.91
-Avg Latency	34 ms
-p95 Latency	79 ms
-Throughput	145 req/s
-GPU Utilization	72%
-System Design Principles
 
-GPU resource isolation
+ Launch Streamlit Dashboard
 
-Horizontal scaling via HPA
+cd streamlit-dashboard
+streamlit run app.py
 
-Latency-aware inference
 
-Observability-first design
+Run ML Training
 
-CI-driven reliability
+cd training-pipeline
+python train.py
 
-Modular service separation
+Infrastructure
 
- Testing
-pytest
- Kubernetes Deployment
-kubectl apply -f k8s/
+Provision AWS resources:
 
-Q: Why C++ ingestion?
 
-A: Reduces preprocessing latency and CPU bottlenecks in high-throughput environments.
+cd terraform
+terraform init
+terraform apply
 
-Q: Why MLflow?
+Deploy to Kubernetes:
+helm install sentinel ./helm/sentinel
 
-A: Enables experiment reproducibility and model registry versioning.
 
-Q: Why InfinityFlow?
+---
 
-A: Abstracts orchestration logic to support scalable production pipelines.
+## 🧠 Extended Q&A
 
-Q: Why GPU deployment?
+### Why use C++ for drift detection?
+To achieve sub-millisecond statistical scoring at scale.
 
-A: Reduces inference latency and increases throughput under heavy load.
+### Why Go for ingestion?
+Go provides efficient concurrency and low-latency HTTP handling.
 
-Q: What level engineer built this?
+### Why Snowflake?
+Cloud-native warehouse for scalable feature storage and SQL-based anomaly analysis.
 
-A: Designed to reflect L5–L6 AI Systems engineering capability.
+### Why MLflow?
+Experiment tracking, reproducibility, and version control.
+
+### Why LangChain + Ollama?
+LLM-powered root cause summarization and RAG over historical incidents.
+
+### Why Kubernetes?
+Horizontal scaling and production-grade orchestration.
+
+### Why Terraform?
+Reproducible infrastructure as code.
+
+
+
+Enterprise Value
+
+SentinelAI demonstrates:
+
+- AI system lifecycle management
+- Drift monitoring
+- MLOps integration
+- Distributed systems engineering
+- Cloud-native architecture
+- LLM augmentation
+- Observability & metrics-driven design
+
+This project models production-level AI governance systems used in large-scale environments.
+
+
+
+ Roadmap
+
+- Add automated retraining pipeline
+- Add Prometheus + Grafana dashboards
+- Add Shadow Model Deployment
+- Add Cost Optimization Engine
+- Add Hallucination Classifier Model
+
+
+
