@@ -1,36 +1,40 @@
 SentinelAI/
 │
-├── api/
-│   └── main.py
+├── ingestion-service/           # Go - Log ingestion + API gateway
 │
-├── core/
-│   ├── model.py
-│   ├── inference.py
-│   └── config.py
+├── drift-engine/                # C++ - High-performance statistical drift detection
 │
-├── ingestion_cpp/
-│   ├── ingestion.cpp
-│   ├── CMakeLists.txt
-│   └── bindings.cpp
+├── training-pipeline/           # Python - SageMaker training + MLflow tracking
 │
-├── orchestration/
-│   └── infinity_flow_pipeline.py
+├── llm-guard/                   # LangChain + Ollama - RAG + incident summarization
 │
-├── dashboard/
-│   └── streamlit_app.py
+├── streamlit-dashboard/         # Streamlit - AI Observability UI
+│   ├── app.py
+│   ├── pages/
+│   │   ├── 1_Model_Drift.py
+│   │   ├── 2_LLM_Monitoring.py
+│   │   ├── 3_Incident_Summary.py
+│   │   ├── 4_System_Metrics.py
+│   │
+│   ├── components/
+│   │   ├── charts.py
+│   │   ├── drift_visualizer.py
+│   │   ├── latency_graphs.py
+│   │
+│   └── requirements.txt
 │
-├── mlflow_tracking/
-│   └── tracking.py
+├── docker/                      # Dockerfiles for all services
 │
-├── monitoring/
-│   └── metrics.py
+├── helm/                        # Kubernetes Helm charts
 │
-├── tests/
-│   └── test_api.py
+├── terraform/                   # Infrastructure as Code
 │
-├── Dockerfile
-├── docker-compose.yml
-├── requirements.txt
-├── .github/workflows/ci.yml
-├── Metrics.md
-└── README.md (LAST)
+├── ci-cd/                       # GitHub Actions workflows
+│
+├── metrics.md                   # Evaluation metrics + performance benchmarks
+│
+├── system_design.md             # Architecture deep dive
+│
+├── architecture.png             # Visual diagram
+│
+└── README.md                    # Recruiter-facing explanation
