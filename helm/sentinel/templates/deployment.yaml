@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sentinel-ingestion
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sentinel-ingestion
+  template:
+    metadata:
+      labels:
+        app: sentinel-ingestion
+    spec:
+      containers:
+      - name: ingestion
+        image: sentinelai-repo:latest
+        ports:
+        - containerPort: 8080
