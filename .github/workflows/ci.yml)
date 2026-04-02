@@ -1,6 +1,0 @@
-- name: Build C++ Drift Engine
-  run: |
-    cd drift-engine
-    g++ drift_engine.cpp -o drift_engine
-    g++ test.cpp drift_engine.cpp -o test_runner
-    ./test_runner

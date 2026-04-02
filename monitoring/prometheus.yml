@@ -1,7 +1,17 @@
 global:
-  scrape_interval: 5s
+  scrape_interval: 15s
+  evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: 'sentinel-ingestion'
+  - job_name: 'ingestion-service'
     static_configs:
-      - targets: ['sentinel-ingestion:8080']
+      - targets: ['ingestion-service:8080']
+
+  - job_name: 'drift-engine'
+    static_configs:
+      - targets: ['drift-engine:7070']
+
+  - job_name: 'llm-guard'
+    static_configs:
+      - targets: ['llm-guard:8000']
+

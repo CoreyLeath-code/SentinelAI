@@ -1,11 +1,125 @@
-  prometheus:
-    image: prom/prometheus
+services:
+
+  # ── Postgres — local warehouse ───────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER:     ${POSTGRES_USER:-sentinel}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sentinel}
+      POSTGRES_DB:       ${POSTGRES_DB:-sentinel}
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/initdb:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sentinel}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Ingestion service (Go) ───────────────────────────────────────────────
+  ingestion-service:
+    build: ./ingestion-service
+    restart: unless-stopped
+    environment:
+      WAREHOUSE_MODE: ${WAREHOUSE_MODE:-postgres}
+      DATABASE_URL:   ${DATABASE_URL:-postgres://sentinel:sentinel@postgres:5432/sentinel?sslmode=disable}
+      PORT:           "8080"
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ── Drift engine (C++ + Python HTTP wrapper) ─────────────────────────────
+  drift-engine:
+    build: ./drift-engine
+    restart: unless-stopped
+    environment:
+      WAREHOUSE_MODE: ${WAREHOUSE_MODE:-postgres}
+      DATABASE_URL:   ${DATABASE_URL:-postgres://sentinel:sentinel@postgres:5432/sentinel?sslmode=disable}
+    ports:
+      - "7070:7070"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:7070/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ── LLM Guard (Python / Ollama-optional) ─────────────────────────────────
+  llm-guard:
+    build: ./llm-guard
+    restart: unless-stopped
+    environment:
+      WAREHOUSE_MODE: ${WAREHOUSE_MODE:-postgres}
+      DATABASE_URL:   ${DATABASE_URL:-postgres://sentinel:sentinel@postgres:5432/sentinel?sslmode=disable}
+      OLLAMA_HOST:    ${OLLAMA_HOST:-http://ollama:11434}
+      LLM_MODEL:      ${LLM_MODEL:-llama2}
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ── Streamlit dashboard ──────────────────────────────────────────────────
+  streamlit-dashboard:
+    build: ./streamlit-dashboard
+    restart: unless-stopped
+    environment:
+      WAREHOUSE_MODE:   ${WAREHOUSE_MODE:-postgres}
+      DATABASE_URL:     ${DATABASE_URL:-postgres://sentinel:sentinel@postgres:5432/sentinel?sslmode=disable}
+      INGESTION_URL:    ${INGESTION_URL:-http://ingestion-service:8080}
+      DRIFT_ENGINE_URL: ${DRIFT_ENGINE_URL:-http://drift-engine:7070}
+      LLM_GUARD_URL:    ${LLM_GUARD_URL:-http://llm-guard:8000}
+    ports:
+      - "8501:8501"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ── Prometheus ───────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
     ports:
       - "9090:9090"
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
 
+  # ── Grafana ──────────────────────────────────────────────────────────────
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:10.4.2
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_ADMIN_PASSWORD:-admin}
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
     ports:
       - "3000:3000"
+    depends_on:
+      - prometheus
+
+volumes:
+  pgdata:
+  prometheus-data:
+  grafana-data:
