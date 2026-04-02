@@ -15,6 +15,7 @@ venv/
 
 # Go binaries
 ingestion-service/sentinel-ingestion
+ingestion-service/ingestion-service
 
 # C++ build artifacts
 drift-engine/drift_engine
