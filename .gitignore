@@ -1,0 +1,37 @@
+# Environment — never commit real credentials
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+venv/
+.venv/
+
+# Go binaries
+ingestion-service/sentinel-ingestion
+ingestion-service/ingestion-service
+
+# C++ build artifacts
+drift-engine/drift_engine
+drift_engine
+
+# Node / frontend
+node_modules/
+.next/
+frontend/.next/
+frontend/node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
