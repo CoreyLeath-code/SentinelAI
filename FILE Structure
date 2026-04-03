@@ -38,3 +38,10 @@ SentinelAI/
 ├── architecture.png             # Visual diagram
 │
 └── README.md                    # Recruiter-facing explanation
+SentinelAI/
+│
+├── app/
+│   └── streamlit_app.py
+├── src/
+├── requirements.txt
+├── README.md
