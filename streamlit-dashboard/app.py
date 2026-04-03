@@ -6,7 +6,7 @@ demo data when the database is unavailable.
 """
 import os
 import time
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 import pandas as pd
 import psycopg2
@@ -160,8 +160,8 @@ with tab4:
         try:
             r = req.get(url, timeout=3)
             status = "🟢 Healthy" if r.status_code == 200 else f"🔴 {r.status_code}"
-        except Exception as exc:
-            status = f"🔴 Unreachable"
+        except Exception:
+            status = "🔴 Unreachable"
         col.metric(name, status)
 
     st.caption("Prometheus: http://localhost:9090 · Grafana: http://localhost:3000")
