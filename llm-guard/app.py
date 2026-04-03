@@ -9,16 +9,19 @@ Endpoints:
   GET  /health     — liveness probe
   GET  /metrics    — Prometheus metrics
 """
+import logging
 import os
 from typing import Optional
 
 import psycopg2
 import psycopg2.extras
 import requests
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 from pydantic import BaseModel
 from starlette.responses import Response
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="SentinelAI LLM Guard", version="1.0.0")
 
@@ -125,7 +128,10 @@ def summarize(req: SummarizeRequest):
                     )
                 conn.commit()
             except Exception:
-                pass
+                logger.exception(
+                    "Failed to persist summary for incident_id=%s", req.incident_id
+                )
+                conn.rollback()
             finally:
                 conn.close()
 

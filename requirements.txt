@@ -7,3 +7,5 @@ mlflow
 slowapi
 pytest
 requests
+httpx
+pydantic

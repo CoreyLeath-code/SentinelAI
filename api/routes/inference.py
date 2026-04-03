@@ -1,24 +1,56 @@
-from fastapi import APIRouter
-from pydantic import BaseModel
+import logging
+import os
+
 import torch
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 router = APIRouter(prefix="/infer", tags=["Inference"])
 
-model_name = "meta-llama/Meta-Llama-3-8B"
+logger = logging.getLogger(__name__)
 
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(
-    model_name,
-    torch_dtype=torch.float16,
-    device_map="auto"
-)
+_MODEL_NAME = os.getenv("LLM_MODEL_NAME", "meta-llama/Meta-Llama-3-8B")
+_device = "cuda" if torch.cuda.is_available() else "cpu"
+
+_tokenizer = None
+_model = None
+
+
+def _load_model():
+    """Lazy-load the model and tokenizer on first request."""
+    global _tokenizer, _model
+    if _model is not None:
+        return
+    try:
+        logger.info("Loading model %s onto %s …", _MODEL_NAME, _device)
+        _tokenizer = AutoTokenizer.from_pretrained(_MODEL_NAME)
+        _model = AutoModelForCausalLM.from_pretrained(
+            _MODEL_NAME,
+            torch_dtype=torch.float16 if _device == "cuda" else torch.float32,
+            device_map="auto" if _device == "cuda" else None,
+        )
+        if _device != "cuda":
+            _model = _model.to(_device)
+        logger.info("Model loaded successfully.")
+    except Exception as exc:
+        logger.error("Failed to load model %s: %s", _MODEL_NAME, exc)
+        raise RuntimeError(f"Model {_MODEL_NAME!r} could not be loaded: {exc}") from exc
+
 
 class Prompt(BaseModel):
     text: str
 
+
 @router.post("/")
 def run_inference(prompt: Prompt):
-    inputs = tokenizer(prompt.text, return_tensors="pt").to("cuda")
-    output = model.generate(**inputs, max_new_tokens=128)
-    return {"response": tokenizer.decode(output[0], skip_special_tokens=True)}
+    try:
+        _load_model()
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+    inputs = _tokenizer(prompt.text, return_tensors="pt").to(_device)
+    with torch.no_grad():
+        output = _model.generate(**inputs, max_new_tokens=128)
+    return {"response": _tokenizer.decode(output[0], skip_special_tokens=True)}
+
