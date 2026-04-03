@@ -1,11 +1,5 @@
-fastapi
-uvicorn
-torch
-transformers
 streamlit
-mlflow
-slowapi
-pytest
-requests
-httpx
-pydantic
+pandas
+numpy
+scikit-learn
+matplotlib
