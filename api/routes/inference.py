@@ -1,27 +1,29 @@
 import logging
 import os
 
-import torch
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from transformers import AutoModelForCausalLM, AutoTokenizer
 
 router = APIRouter(prefix="/infer", tags=["Inference"])
 
 logger = logging.getLogger(__name__)
 
 _MODEL_NAME = os.getenv("LLM_MODEL_NAME", "meta-llama/Meta-Llama-3-8B")
-_device = "cuda" if torch.cuda.is_available() else "cpu"
 
 _tokenizer = None
 _model = None
+_device = None
 
 
 def _load_model():
     """Lazy-load the model and tokenizer on first request."""
-    global _tokenizer, _model
+    global _tokenizer, _model, _device
     if _model is not None:
         return
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+
+    _device = "cuda" if torch.cuda.is_available() else "cpu"
     try:
         logger.info("Loading model %s onto %s …", _MODEL_NAME, _device)
         _tokenizer = AutoTokenizer.from_pretrained(_MODEL_NAME)
@@ -44,6 +46,8 @@ class Prompt(BaseModel):
 
 @router.post("/")
 def run_inference(prompt: Prompt):
+    import torch
+
     try:
         _load_model()
     except RuntimeError as exc:

@@ -1,3 +1,8 @@
+fastapi
+httpx
+pydantic
+pytest
+slowapi
 streamlit
 pandas
 numpy
