@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
@@ -46,13 +47,12 @@ class Prompt(BaseModel):
 
 @router.post("/")
 def run_inference(prompt: Prompt):
-    import torch
-
     try:
         _load_model()
     except RuntimeError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 
+    torch = sys.modules["torch"]
     inputs = _tokenizer(prompt.text, return_tensors="pt").to(_device)
     with torch.no_grad():
         output = _model.generate(**inputs, max_new_tokens=128)
