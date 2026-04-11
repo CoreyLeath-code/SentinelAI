@@ -1,7 +1,74 @@
 services:
+  # ── Streamlit dashboard — primary web UI ───────────────────────────────────
   - type: web
-    name: sentinel-ai
+    name: sentinel-dashboard
     env: docker
-    plan: gpu
+    dockerfilePath: ./streamlit-dashboard/Dockerfile
+    dockerContext: ./streamlit-dashboard
+    plan: free
     autoDeploy: true
+    healthCheckPath: /_stcore/health
+    envVars:
+      - key: WAREHOUSE_MODE
+        value: postgres
+      - key: DATABASE_URL
+        sync: false          # set in Render dashboard
+      - key: INGESTION_URL
+        value: https://sentinel-ingestion.onrender.com
+      - key: DRIFT_ENGINE_URL
+        value: https://sentinel-drift-engine.onrender.com
+      - key: LLM_GUARD_URL
+        value: https://sentinel-llm-guard.onrender.com
+
+  # ── Ingestion service (Go) ─────────────────────────────────────────────────
+  - type: web
+    name: sentinel-ingestion
+    env: docker
+    dockerfilePath: ./ingestion-service/Dockerfile
+    dockerContext: ./ingestion-service
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: WAREHOUSE_MODE
+        value: postgres
+      - key: DATABASE_URL
+        sync: false          # set in Render dashboard
+      - key: PORT
+        value: "8080"
+
+  # ── Drift engine (C++ + Python) ────────────────────────────────────────────
+  - type: web
+    name: sentinel-drift-engine
+    env: docker
+    dockerfilePath: ./drift-engine/Dockerfile
+    dockerContext: ./drift-engine
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: WAREHOUSE_MODE
+        value: postgres
+      - key: DATABASE_URL
+        sync: false          # set in Render dashboard
+
+  # ── LLM Guard ──────────────────────────────────────────────────────────────
+  - type: web
+    name: sentinel-llm-guard
+    env: docker
+    dockerfilePath: ./llm-guard/Dockerfile
+    dockerContext: ./llm-guard
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: WAREHOUSE_MODE
+        value: postgres
+      - key: DATABASE_URL
+        sync: false          # set in Render dashboard
+      - key: OLLAMA_HOST
+        sync: false          # set in Render dashboard if using Ollama
+      - key: LLM_MODEL
+        value: llama2
+
 
