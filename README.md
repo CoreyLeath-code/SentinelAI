@@ -12,7 +12,7 @@ SentinelAI
 ![MLflow](https://img.shields.io/badge/MLflow-ExperimentTracking-0194E2)
 ![LangChain](https://img.shields.io/badge/LangChain-LLMIntegration-green)
 ![Ollama](https://img.shields.io/badge/Ollama-LocalLLM-black)
-
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/trojan3877/sentinelai/main/demo_app.py)
 SentinelAI is a distributed AI reliability and monitoring platform designed to:
 
 - Detect model drift
