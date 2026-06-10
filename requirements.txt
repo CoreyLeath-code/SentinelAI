@@ -8,3 +8,4 @@ pandas
 numpy
 scikit-learn
 matplotlib
+streamlit>=1.35.0
