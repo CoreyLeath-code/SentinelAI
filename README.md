@@ -26,7 +26,22 @@ SentinelAI is a distributed AI reliability and monitoring platform designed to:
 
 It combines statistical ML monitoring with LLM-powered incident intelligence.
 
----
+## 🏛️ Advanced Platform Architecture & Telemetry Decoupling
+
+To guarantee enterprise-grade performance, SentinelAI enforces strict architectural separation between primary inference loops and the intelligent evaluation layers.
+[ Incoming User Query ] ───► [ Async Proxy Gateway ] ───► [ Downstream Application ]
+│
+(Non-Blocking Telemetry Mirror)
+▼
+┌──────────────────────────────────────┐
+│    SentinelAI Asynchronous Engine    │
+├──────────────────────────────────────┤
+│  • Parallelized Guardrail Evaluation │
+│  • GPT-4 Intelligent SRE Diagnostics │
+│  • Token Cost & Allocation Trackers  │
+└──────────────────┬───────────────────┘
+▼
+[ Streamlit Observability Control Plane ]
 
 ## 🚀 Quickstart — Docker Compose (recommended)
 
