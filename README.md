@@ -14,7 +14,10 @@ SentinelAI
 ![Ollama](https://img.shields.io/badge/Ollama-LocalLLM-black)
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/trojan3877/sentinelai/main/demo_app.py)
 SentinelAI is a distributed AI reliability and monitoring platform designed to:
-
+![Build Status](https://github.com/Trojan3877/SentinelAI/workflows/CI/badge.svg)
+[![LLM Engine: GPT-4](https://img.shields.io/badge/LLM_Engine-GPT--4_Omni-4aa377.svg?logo=openai&logoColor=white)](https://openai.com/)
+[![Control Plane: Streamlit](https://img.shields.io/badge/Control_Plane-Streamlit-FF4B4B.svg?logo=streamlit&logoColor=white)](https://share.streamlit.io/)
+[![Guardrails: Semantic & PII](https://img.shields.io/badge/Guardrails-Semantic_%26_PII-orange.svg)](#)
 - Detect model drift
 - Monitor inference anomalies
 - Track LLM hallucination risk
