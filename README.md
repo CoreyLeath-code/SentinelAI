@@ -2,7 +2,6 @@ SentinelAI
 <img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/33e7a5fb-be0a-495b-a950-7a14b9aedb4b" />
 
 # SentinelAI — Enterprise AI Reliability & Governance Platform
-
 ![CI](https://img.shields.io/github/actions/workflow/status/Trojan3877/SentinelAI/ci.yml?branch=main)
 ![C++](https://img.shields.io/badge/C++-DriftEngine-blue)
 ![Go](https://img.shields.io/badge/Go-Ingestion-00ADD8)
@@ -13,7 +12,6 @@ SentinelAI
 ![LangChain](https://img.shields.io/badge/LangChain-LLMIntegration-green)
 ![Ollama](https://img.shields.io/badge/Ollama-LocalLLM-black)
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/trojan3877/sentinelai/main/demo_app.py)
-SentinelAI is a distributed AI reliability and monitoring platform designed to:
 ![Build Status](https://github.com/Trojan3877/SentinelAI/workflows/CI/badge.svg)
 [![LLM Engine: GPT-4](https://img.shields.io/badge/LLM_Engine-GPT--4_Omni-4aa377.svg?logo=openai&logoColor=white)](https://openai.com/)
 [![Control Plane: Streamlit](https://img.shields.io/badge/Control_Plane-Streamlit-FF4B4B.svg?logo=streamlit&logoColor=white)](https://share.streamlit.io/)
