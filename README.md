@@ -16,7 +16,6 @@ SentinelAI
 [![LLM Engine: GPT-4](https://img.shields.io/badge/LLM_Engine-GPT--4_Omni-4aa377.svg?logo=openai&logoColor=white)](https://openai.com/)
 [![Control Plane: Streamlit](https://img.shields.io/badge/Control_Plane-Streamlit-FF4B4B.svg?logo=streamlit&logoColor=white)](https://share.streamlit.io/)
 [![Guardrails: Semantic & PII](https://img.shields.io/badge/Guardrails-Semantic_%26_PII-orange.svg)](#)
-<!-- CI/CD & Automation Telemetry Matrix -->
 [![Continuous Integration](https://github.com/Trojan3877/SentinelAI/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/Trojan3877/SentinelAI/actions/workflows/ci-cd.yml)
 [![Code Quality Assurance](https://github.com/Trojan3877/SentinelAI/actions/workflows/ci.yml/badge.svg)](https://github.com/Trojan3877/SentinelAI/actions/workflows/ci.yml)
 [![Security Analysis](https://github.com/Trojan3877/SentinelAI/actions/workflows/security.yml/badge.svg)](https://github.com/Trojan3877/SentinelAI/actions/workflows/security.yml)
