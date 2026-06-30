@@ -23,21 +23,12 @@ SentinelAI
 [![Performance Benchmarks](https://github.com/Trojan3877/SentinelAI/actions/workflows/benchmarks.yml/badge.svg)](https://github.com/Trojan3877/SentinelAI/actions/workflows/benchmarks.yml)
 [![Schema Validation](https://github.com/Trojan3877/SentinelAI/actions/workflows/data-validation.yml/badge.svg)](https://github.com/Trojan3877/SentinelAI/actions/workflows/data-validation.yml)
 [![Automated Release](https://github.com/Trojan3877/SentinelAI/actions/workflows/release.yml/badge.svg)](https://github.com/Trojan3877/SentinelAI/actions/workflows/release.yml)
-
-<!-- Engineering Framework & Standard Badges -->
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
 [![Framework: MLflow](https://img.shields.io/badge/Framework-MLflow-005b96.svg?logo=mlflow)](https://mlflow.org/)
 [![Code Style: Flake8](https://img.shields.io/badge/code%20style-flake8-black)](https://flake8.pycqa.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
-
-
-
-
-
-
-
 - Detect model drift
 - Monitor inference anomalies
 - Track LLM hallucination risk
