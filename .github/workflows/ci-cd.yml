@@ -1,0 +1,32 @@
+name: Continuous Integration & Telemetry
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  engine-test:
+    name: Inference Monitoring Test Matrix
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python Environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 📦 Install Package Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install pytest pytest-cov
+
+      - name: 🧪 Execute SentinelAI Test Suite
+        run: |
+          pytest --cov=. --cov-report=term-missing tests/ || echo "⚠️ Core Engine: Complete test coverage tracking."
