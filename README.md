@@ -18,6 +18,31 @@ SentinelAI is a distributed AI reliability and monitoring platform designed to:
 [![LLM Engine: GPT-4](https://img.shields.io/badge/LLM_Engine-GPT--4_Omni-4aa377.svg?logo=openai&logoColor=white)](https://openai.com/)
 [![Control Plane: Streamlit](https://img.shields.io/badge/Control_Plane-Streamlit-FF4B4B.svg?logo=streamlit&logoColor=white)](https://share.streamlit.io/)
 [![Guardrails: Semantic & PII](https://img.shields.io/badge/Guardrails-Semantic_%26_PII-orange.svg)](#)
+# 🛡️ SentinelAI: Production Inference Platform & Drift Monitoring
+
+<!-- CI/CD & Automation Telemetry Matrix -->
+[![Continuous Integration](https://github.com/Trojan3877/SentinelAI/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/Trojan3877/SentinelAI/actions/workflows/ci-cd.yml)
+[![Code Quality Assurance](https://github.com/Trojan3877/SentinelAI/actions/workflows/ci.yml/badge.svg)](https://github.com/Trojan3877/SentinelAI/actions/workflows/ci.yml)
+[![Security Analysis](https://github.com/Trojan3877/SentinelAI/actions/workflows/security.yml/badge.svg)](https://github.com/Trojan3877/SentinelAI/actions/workflows/security.yml)
+[![SAST Code Flaw Scan](https://github.com/Trojan3877/SentinelAI/actions/workflows/sast.yml/badge.svg)](https://github.com/Trojan3877/SentinelAI/actions/workflows/sast.yml)
+[![Performance Benchmarks](https://github.com/Trojan3877/SentinelAI/actions/workflows/benchmarks.yml/badge.svg)](https://github.com/Trojan3877/SentinelAI/actions/workflows/benchmarks.yml)
+[![Schema Validation](https://github.com/Trojan3877/SentinelAI/actions/workflows/data-validation.yml/badge.svg)](https://github.com/Trojan3877/SentinelAI/actions/workflows/data-validation.yml)
+[![Automated Release](https://github.com/Trojan3877/SentinelAI/actions/workflows/release.yml/badge.svg)](https://github.com/Trojan3877/SentinelAI/actions/workflows/release.yml)
+
+<!-- Engineering Framework & Standard Badges -->
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
+[![Framework: MLflow](https://img.shields.io/badge/Framework-MLflow-005b96.svg?logo=mlflow)](https://mlflow.org/)
+[![Code Style: Flake8](https://img.shields.io/badge/code%20style-flake8-black)](https://flake8.pycqa.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+---
+
+
+
+
+
+
+
 - Detect model drift
 - Monitor inference anomalies
 - Track LLM hallucination risk
