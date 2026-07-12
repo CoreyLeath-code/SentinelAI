@@ -149,15 +149,77 @@ User → Go Ingestion API (8080) → Postgres (local) / Snowflake (optional)
 
 ---
 
-## 📊 Metrics
+## 📊 Research Benchmarks & Recorded Metrics
 
-| Metric | Value |
-|--------|-------|
-| PSI Detection Threshold | 0.20 |
-| P95 API Latency | 180ms |
-| Throughput | 150 RPS |
-| Drift Engine Compute | <2ms |
-| LLM Summarization | ~1.2s |
+Measured and normalized on 2026-07-12. Values are grouped by provenance so
+documented targets, local smoke benchmarks, and reproducibility metrics remain
+auditable.
+
+### Recorded Platform Benchmarks
+
+| Component | Metric | Recorded Value | Provenance |
+|---|---:|---:|---|
+| C++ Drift Engine | PSI drift threshold | 0.20 | `drift-engine/drift_engine.cpp`, `Metrics.md` |
+| C++ Drift Engine | KS drift threshold | 0.10 | `drift-engine/drift_engine.cpp` |
+| C++ Drift Engine | Documented compute target | < 2 ms | `README.md`, `Metrics.md` |
+| Go Ingestion API | Documented p95 latency | 180 ms | `README.md`, `Metrics.md` |
+| Platform Throughput | Documented request rate | 150 RPS | `README.md`, `Metrics.md` |
+| LLM Guard | Documented summarization latency | ~1.2 s | `README.md`, `Metrics.md` |
+| Docker stack | Documented cold start | < 3 s | `Metrics.md` |
+| Local warehouse | Default backend | Postgres | `.env.example`, `README.md` |
+| Production warehouse | Optional backend | Snowflake | `README.md` |
+
+### Local Smoke Benchmarks
+
+| Benchmark | Input / Runs | Result | Notes |
+|---|---:|---:|---|
+| `SentinelModel` parameter count | 16 -> 32 -> 1 MLP | 577 trainable params | `api/core/model.py` |
+| `SentinelModel` forward pass | 1,000 CPU runs | 0.0160 ms avg | Synthetic tensor, no network or model I/O |
+| `SentinelModel` synthetic throughput | 1,000 CPU runs | 62,470.72 RPS | Local smoke benchmark |
+| PSI/KS drift calculation | 10,000 Python-equivalent runs | 0.001549 ms avg | Mirrors C++ formula for README sample payload |
+| README sample PSI | `[0.2,0.3,0.25,0.25]` -> `[0.1,0.35,0.30,0.25]` | 0.086138 | Below PSI drift threshold |
+| README sample KS statistic | Same sample payload | 0.100000 | At KS threshold boundary |
+| README sample drift flag | PSI > 0.20 or KS > 0.10 | false | Strict threshold comparison |
+| LLM fallback summary path | 10,000 rule-based runs | 0.000104 ms avg | Ollama unavailable path only |
+
+### Observability Metrics
+
+| Metric Name | Type | Emitted By | Purpose |
+|---|---|---|---|
+| `sentinel_requests_total` | Counter | `monitoring/metrics.py` | API request volume |
+| `sentinel_request_latency_seconds` | Histogram | `monitoring/metrics.py` | API request latency |
+| `inference_requests_total` | Counter | `monitoring/prometheus.py` | Inference request volume |
+| `ingestion_logs_total{status}` | Counter | `ingestion-service/main.go` | Ingestion outcome counts |
+| `ingestion_handler_seconds` | Histogram | `ingestion-service/main.go` | Go ingestion handler latency |
+| `drift_detected_total` | Counter | `drift-engine/server.py` | Drift event count |
+| `drift_compute_seconds` | Histogram | `drift-engine/server.py` | Drift calculation latency |
+| `llm_guard_summaries_total{method}` | Counter | `llm-guard/app.py` | Ollama vs fallback summary count |
+| `llm_guard_summary_seconds` | Histogram | `llm-guard/app.py` | Summary generation latency |
+| `requests_total` | Counter | `backend/app/main.py` | Backend request volume |
+
+### Project & Reproducibility Metrics
+
+| Area | Metric | Current Value | Source |
+|---|---:|---:|---|
+| Codebase | Tracked files | 98 | `git ls-files` |
+| Codebase | Python files | 32 | `*.py` files |
+| Codebase | Go files | 1 | `ingestion-service/main.go` |
+| Codebase | C++ files | 4 | Drift and ingestion engine sources |
+| Codebase | TypeScript files | 7 | `frontend/` |
+| Codebase | Source NCLOC | 1,201 | Non-empty, non-comment Python/Go/C++/TS lines |
+| Tests | Python test files | 6 | `tests/` |
+| Tests | Test declarations | 5 | `def test_*` scan |
+| Tests | Focused API validation | 4 passed | `pytest tests/test_*.py` focused API scope |
+| Tests | Focused `api` coverage | 24% | Local coverage run |
+| CI/CD | GitHub Actions workflows | 7 | `.github/workflows/*.yml` |
+| Dependencies | Python runtime dependencies | 11 | `requirements.txt` |
+| Delivery | Dockerfiles | 5 | Root/services/dashboard Docker assets |
+| Delivery | Kubernetes manifests | 9 | `k8s/*.yaml` |
+| Delivery | Helm chart files | 1 | `helm/sentinel/templates/deployment.yaml` |
+| Infrastructure | Terraform files | 1 | `terraform/main,TF` |
+| Monitoring | Monitoring config files | 5 | `monitoring/` |
+| Services | Docker Compose service URLs | 6 | Dashboard, Prometheus, Grafana, ingestion, drift, LLM guard |
+| Validation limits | Native Go/C++ compile checks | Not run locally | Go/g++/MSVC unavailable in workspace |
 
 ---
 
