@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "benchmark": "python-reference-drift-decision",
+  "generated_at": "2026-07-18T20:15:54.020637+00:00",
+  "seed": 20260718,
+  "environment": {
+    "python": "3.12.13",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "protocol": {
+    "iterations": 20000,
+    "warmup": 100,
+    "bins": 32,
+    "evaluation_samples": 2000
+  },
+  "latency_us": {
+    "mean": 41.705635,
+    "median": 39.7,
+    "p95": 54.7,
+    "p99": 76.2,
+    "min": 23.7,
+    "max": 319.2
+  },
+  "throughput_ops_s": 23031.134524050663,
+  "peak_tracemalloc_mib": 0.6227264404296875,
+  "quality": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "confusion_matrix": {
+      "tp": 1000,
+      "tn": 1000,
+      "fp": 0,
+      "fn": 0
+    }
+  },
+  "limitations": [
+    "Measures the Python reference implementation, not native C++ or HTTP latency.",
+    "Quality labels use seeded synthetic perturbation classes, not production ground truth."
+  ]
+}
+
