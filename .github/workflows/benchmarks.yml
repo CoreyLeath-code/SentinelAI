@@ -2,30 +2,56 @@ name: Performance Benchmarking
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   benchmark:
-    name: Core Engine Latency Tracking
+    name: Seeded Drift Research Benchmark
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: ⬇️ Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🐍 Set up Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          python-version: "3.11"
 
-      - name: 📦 Install Engine & Profiling Tools
+      - name: Run deterministic benchmark
         run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install pytest pytest-benchmark
+          python benchmarks/run_benchmark.py \
+            --iterations 20000 \
+            --evaluation-samples 2000 \
+            --output benchmark-results.json
 
-      - name: ⏱️ Profile Code Execution Speeds
+      - name: Validate benchmark schema
         run: |
-          pytest --benchmark-only --benchmark-skip || echo "Performance profiles logged successfully."
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          result = json.loads(Path("benchmark-results.json").read_text())
+          required = {"latency_us", "throughput_ops_s", "peak_tracemalloc_mib", "quality"}
+          missing = required - result.keys()
+          if missing:
+              raise SystemExit(f"missing benchmark fields: {sorted(missing)}")
+          if result["throughput_ops_s"] <= 0 or result["latency_us"]["p99"] <= 0:
+              raise SystemExit("benchmark produced invalid performance metrics")
+          if result["quality"]["f1"] < 0.95:
+              raise SystemExit("synthetic drift regression: F1 below 0.95")
+          PY
+
+      - name: Upload raw benchmark evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentinelai-benchmark-${{ github.sha }}
+          path: benchmark-results.json
+          if-no-files-found: error
+          retention-days: 30
