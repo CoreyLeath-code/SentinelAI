@@ -2,32 +2,18 @@ SentinelAI
 <img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/33e7a5fb-be0a-495b-a950-7a14b9aedb4b" />
 
 # SentinelAI — Enterprise AI Reliability & Governance Platform
-![CI](https://img.shields.io/github/actions/workflow/status/Trojan3877/SentinelAI/ci.yml?branch=main)
-![C++](https://img.shields.io/badge/C++-DriftEngine-blue)
-![Go](https://img.shields.io/badge/Go-Ingestion-00ADD8)
-![Snowflake](https://img.shields.io/badge/Snowflake-Optional-29B5E8)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-Orchestration-326CE5)
-![Terraform](https://img.shields.io/badge/Terraform-IaC-7B42BC)
-![MLflow](https://img.shields.io/badge/MLflow-ExperimentTracking-0194E2)
-![LangChain](https://img.shields.io/badge/LangChain-LLMIntegration-green)
-![Ollama](https://img.shields.io/badge/Ollama-LocalLLM-black)
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/trojan3877/sentinelai/main/demo_app.py)
-![Build Status](https://github.com/Trojan3877/SentinelAI/workflows/CI/badge.svg)
-[![LLM Engine: GPT-4](https://img.shields.io/badge/LLM_Engine-GPT--4_Omni-4aa377.svg?logo=openai&logoColor=white)](https://openai.com/)
-[![Control Plane: Streamlit](https://img.shields.io/badge/Control_Plane-Streamlit-FF4B4B.svg?logo=streamlit&logoColor=white)](https://share.streamlit.io/)
-[![Guardrails: Semantic & PII](https://img.shields.io/badge/Guardrails-Semantic_%26_PII-orange.svg)](#)
-[![Continuous Integration](https://github.com/Trojan3877/SentinelAI/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/Trojan3877/SentinelAI/actions/workflows/ci-cd.yml)
-[![Code Quality Assurance](https://github.com/Trojan3877/SentinelAI/actions/workflows/ci.yml/badge.svg)](https://github.com/Trojan3877/SentinelAI/actions/workflows/ci.yml)
-[![Security Analysis](https://github.com/Trojan3877/SentinelAI/actions/workflows/security.yml/badge.svg)](https://github.com/Trojan3877/SentinelAI/actions/workflows/security.yml)
-[![SAST Code Flaw Scan](https://github.com/Trojan3877/SentinelAI/actions/workflows/sast.yml/badge.svg)](https://github.com/Trojan3877/SentinelAI/actions/workflows/sast.yml)
-[![Performance Benchmarks](https://github.com/Trojan3877/SentinelAI/actions/workflows/benchmarks.yml/badge.svg)](https://github.com/Trojan3877/SentinelAI/actions/workflows/benchmarks.yml)
-[![Schema Validation](https://github.com/Trojan3877/SentinelAI/actions/workflows/data-validation.yml/badge.svg)](https://github.com/Trojan3877/SentinelAI/actions/workflows/data-validation.yml)
-[![Automated Release](https://github.com/Trojan3877/SentinelAI/actions/workflows/release.yml/badge.svg)](https://github.com/Trojan3877/SentinelAI/actions/workflows/release.yml)
-[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3110/)
-[![Framework: MLflow](https://img.shields.io/badge/Framework-MLflow-005b96.svg?logo=mlflow)](https://mlflow.org/)
-[![Code Style: Flake8](https://img.shields.io/badge/code%20style-flake8-black)](https://flake8.pycqa.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+[![CI](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/ci-cd.yml)
+[![Benchmarks](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/benchmarks.yml/badge.svg)](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/benchmarks.yml)
+[![Security](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/security.yml/badge.svg)](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/security.yml)
+[![SAST](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/sast.yml/badge.svg)](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/sast.yml)
+[![Schema Validation](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/data-validation.yml/badge.svg)](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/data-validation.yml)
+[![Release](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/release.yml/badge.svg)](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/release.yml)
+[![Coverage](https://img.shields.io/badge/focused%20API%20coverage-24%25-red)](#test-and-evidence-status)
+[![Benchmark](https://img.shields.io/badge/reference%20p95-54.7%20%C2%B5s-6f42c1)](benchmarks/benchmark_report.md)
+[![Throughput](https://img.shields.io/badge/reference%20throughput-23.0k%20ops%2Fs-2ea44f)](benchmarks/benchmark_report.md)
+[![Python](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ---
 - Detect model drift
 - Monitor inference anomalies
@@ -149,38 +135,45 @@ User → Go Ingestion API (8080) → Postgres (local) / Snowflake (optional)
 
 ---
 
-## 📊 Research Benchmarks & Recorded Metrics
+## 📊 Research Metrics & Benchmarks
 
-Measured and normalized on 2026-07-12. Values are grouped by provenance so
-documented targets, local smoke benchmarks, and reproducibility metrics remain
-auditable.
+The committed baseline is generated by a seeded, dependency-free harness that mirrors the PSI/KS decision rule in the C++ drift engine. These numbers measure the Python reference implementation—not native C++ or end-to-end HTTP latency. See the [full methodology, interpretation, and limitations](benchmarks/benchmark_report.md) and [raw JSON evidence](benchmarks/latest.json).
 
-### Recorded Platform Benchmarks
+### Latest reproducible baseline
 
-| Component | Metric | Recorded Value | Provenance |
-|---|---:|---:|---|
-| C++ Drift Engine | PSI drift threshold | 0.20 | `drift-engine/drift_engine.cpp`, `Metrics.md` |
-| C++ Drift Engine | KS drift threshold | 0.10 | `drift-engine/drift_engine.cpp` |
-| C++ Drift Engine | Documented compute target | < 2 ms | `README.md`, `Metrics.md` |
-| Go Ingestion API | Documented p95 latency | 180 ms | `README.md`, `Metrics.md` |
-| Platform Throughput | Documented request rate | 150 RPS | `README.md`, `Metrics.md` |
-| LLM Guard | Documented summarization latency | ~1.2 s | `README.md`, `Metrics.md` |
-| Docker stack | Documented cold start | < 3 s | `Metrics.md` |
-| Local warehouse | Default backend | Postgres | `.env.example`, `README.md` |
-| Production warehouse | Optional backend | Snowflake | `README.md` |
+| Metric | Value | Protocol |
+|---|---:|---|
+| Timed evaluations | 20,000 | 100 warm-ups, 32 bins, seed `20260718` |
+| Mean latency | 41.706 µs | Per-decision reference latency |
+| Median latency | 39.700 µs | Per-decision reference latency |
+| P95 / P99 latency | 54.700 / 76.200 µs | Linear percentile interpolation |
+| Minimum / maximum | 23.700 / 319.200 µs | Observed range |
+| Throughput | 23,031.13 operations/s | Single-process CPython reference |
+| Peak traced memory | 0.623 MiB | Python `tracemalloc` |
+| Precision / recall / F1 | 1.000 / 1.000 / 1.000 | 2,000 balanced synthetic cases |
+| Confusion matrix | TP 1000 · TN 1000 · FP 0 · FN 0 | Controlled seeded classes |
+| Environment | CPython 3.12.13 · Windows 11 | Recorded 2026-07-18 |
 
-### Local Smoke Benchmarks
+### Benchmark scope and reproducibility
 
-| Benchmark | Input / Runs | Result | Notes |
-|---|---:|---:|---|
-| `SentinelModel` parameter count | 16 -> 32 -> 1 MLP | 577 trainable params | `api/core/model.py` |
-| `SentinelModel` forward pass | 1,000 CPU runs | 0.0160 ms avg | Synthetic tensor, no network or model I/O |
-| `SentinelModel` synthetic throughput | 1,000 CPU runs | 62,470.72 RPS | Local smoke benchmark |
-| PSI/KS drift calculation | 10,000 Python-equivalent runs | 0.001549 ms avg | Mirrors C++ formula for README sample payload |
-| README sample PSI | `[0.2,0.3,0.25,0.25]` -> `[0.1,0.35,0.30,0.25]` | 0.086138 | Below PSI drift threshold |
-| README sample KS statistic | Same sample payload | 0.100000 | At KS threshold boundary |
-| README sample drift flag | PSI > 0.20 or KS > 0.10 | false | Strict threshold comparison |
-| LLM fallback summary path | 10,000 rule-based runs | 0.000104 ms avg | Ollama unavailable path only |
+```bash
+python benchmarks/run_benchmark.py --output benchmarks/latest.json
+```
+
+CI reruns the benchmark on every pull request, validates its schema and F1 regression floor, and uploads raw evidence for 30 days. For comparable hosts, median or P95 increases above 15% require investigation and a documented baseline update.
+
+The perfect synthetic classification result is a regression signal for deliberately separated perturbation classes; it is **not** a production accuracy claim. Native C++, service concurrency, network, warehouse, GPU, and real-world labeled drift benchmarks remain future evaluation layers.
+
+### Test and evidence status
+
+| Evidence | Current state | Source |
+|---|---:|---|
+| Focused API tests | 4 passed | Existing repository audit |
+| Focused API coverage | 24% | Existing repository audit; below 90% target |
+| Benchmark raw data | Versioned JSON | `benchmarks/latest.json` |
+| Benchmark methodology | Versioned report | `benchmarks/benchmark_report.md` |
+| Benchmark CI | Required execution + artifact | `.github/workflows/benchmarks.yml` |
+| Drift thresholds | PSI 0.20 · KS 0.10 | `drift-engine/drift_engine.cpp` |
 
 ### Observability Metrics
 
