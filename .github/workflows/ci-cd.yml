@@ -6,10 +6,18 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: sentinelai-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   engine-test:
     name: Inference Monitoring Test Matrix
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: ⬇️ Checkout Repository
@@ -24,9 +32,20 @@ jobs:
       - name: 📦 Install Package Dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install pytest pytest-cov
+          pip install -r requirements-dev.txt
 
       - name: 🧪 Execute SentinelAI Test Suite
+        env:
+          PYTHONPATH: .
         run: |
-          pytest --cov=. --cov-report=term-missing tests/ || echo "⚠️ Core Engine: Complete test coverage tracking."
+          pytest --cov=. --cov-report=term-missing --cov-report=xml tests/ --junitxml=pytest-results.xml
+
+      - name: Upload test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sentinelai-test-evidence
+          path: |
+            coverage.xml
+            pytest-results.xml
+          if-no-files-found: warn
