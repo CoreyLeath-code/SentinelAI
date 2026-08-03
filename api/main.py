@@ -1,3 +1,6 @@
+import hmac
+import os
+
 from fastapi import Depends, FastAPI, HTTPException, Header, Request
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
@@ -22,10 +25,21 @@ class PromptRequest(BaseModel):
 
 
 def _require_bearer(authorization: Optional[str] = Header(default=None)) -> str:
-    """Dependency that validates a Bearer token is present."""
+    """Require a configured bearer token for the public inference stub."""
+
+    expected_token = os.getenv("API_BEARER_TOKEN")
+    if not expected_token:
+        raise HTTPException(
+            status_code=503,
+            detail="Inference authentication is not configured.",
+        )
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing or invalid Authorization header")
-    return authorization.removeprefix("Bearer ").strip()
+
+    token = authorization.removeprefix("Bearer ").strip()
+    if not hmac.compare_digest(token, expected_token):
+        raise HTTPException(status_code=401, detail="Missing or invalid Authorization header")
+    return token
 
 
 @app.get("/")
