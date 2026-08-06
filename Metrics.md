@@ -40,7 +40,9 @@
 | Cost per 1k requests | Cloud compute estimate |
 
 
-## Performance Benchmarks
+## Design Targets (Not Measured)
+
+The following planning values are preserved, but no committed benchmark, test, or workflow artifact generates them. They are not measured performance claims.
 
 | Component | Metric | Result |
 |------------|--------|--------|
