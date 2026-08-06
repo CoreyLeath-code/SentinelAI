@@ -220,7 +220,7 @@ The perfect synthetic classification result is a regression signal for deliberat
 | Benchmark raw data | Versioned JSON | `benchmarks/latest.json` |
 | Benchmark methodology | Versioned report | `benchmarks/benchmark_report.md` |
 | Benchmark CI | Required execution + artifact | `.github/workflows/benchmarks.yml` |
-| Drift thresholds | PSI 0.20 · KS 0.10 | `drift-engine/drift_engine.cpp` |
+| Drift thresholds | PSI 0.20 · KS 0.10 | `g++ -std=c++17 drift-engine/drift_engine.cpp -o drift-engine/drift_engine`; source: `drift-engine/drift_engine.cpp` |
 
 ### Observability Metrics
 
