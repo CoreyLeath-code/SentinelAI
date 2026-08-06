@@ -50,7 +50,6 @@ LICENSE
 DailyLog.md
 Contributing.md
 system_design.md
-FILE Structure
 Metrics.md
 
 # Terraform state (contains sensitive data)
