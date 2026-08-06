@@ -1,3 +1,10 @@
+# Historical repository layout reference
+
+This manually maintained snapshot was moved from the repository root during the 2026-08-05 root-directory audit. It is retained for historical context only and is **not** a generated current inventory; use the repository tree and service documentation for current paths.
+
+## Original snapshot
+
+```text
 SentinelAI/
 │
 ├── ingestion-service/           # Go - Log ingestion + API gateway
@@ -45,3 +52,4 @@ SentinelAI/
 ├── src/
 ├── requirements.txt
 ├── README.md
+```
