@@ -9,7 +9,11 @@ import torch.nn as nn
 
 
 class SentinelModel(nn.Module):
-    """Two-layer MLP that accepts arbitrary-length feature vectors."""
+    """Two-layer MLP with a fixed-width input contract per model instance.
+
+    The default model expects 16 features. Deployments using a different
+    input dimension must update the API contract and model artifact together.
+    """
 
     def __init__(self, input_dim: int = 16, hidden_dim: int = 32, output_dim: int = 1) -> None:
         super().__init__()
