@@ -6,7 +6,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from api.inference import run_inference
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 
 limiter = Limiter(key_func=get_remote_address)
@@ -16,8 +16,16 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 
+FEATURE_DIMENSIONS = 16
+
 class RequestModel(BaseModel):
-    features: List[float]
+    """Fixed-width feature vector required by the shipped SentinelModel."""
+
+    features: List[float] = Field(
+        min_length=FEATURE_DIMENSIONS,
+        max_length=FEATURE_DIMENSIONS,
+        description="Exactly 16 numeric features in the model's expected order.",
+    )
 
 
 class PromptRequest(BaseModel):
