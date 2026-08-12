@@ -67,7 +67,15 @@ var db *sql.DB
 // Handlers
 // ---------------------------------------------------------------------------
 
+// healthHandler reports process liveness. It intentionally does not depend on
+// Postgres so an orchestrator can distinguish a failed dependency from a dead process.
 func healthHandler(w http.ResponseWriter, _ *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"status": "ok", "service": "ingestion-service"})
+}
+
+// readyHandler reports whether this replica can accept durable ingestion writes.
+func readyHandler(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if db != nil {
 		if err := db.Ping(); err != nil {
@@ -77,6 +85,32 @@ func healthHandler(w http.ResponseWriter, _ *http.Request) {
 		}
 	}
 	json.NewEncoder(w).Encode(map[string]string{"status": "ok", "service": "ingestion-service"})
+}
+
+func withOptionalInstanceID(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// This header is disabled in normal operation. It is a deterministic
+		// test aid for the Compose scaling smoke test, not a public identifier.
+		if os.Getenv("EXPOSE_INSTANCE_ID") == "true" {
+			instanceID := os.Getenv("INSTANCE_ID")
+			if instanceID == "" {
+				instanceID, _ = os.Hostname()
+			}
+			if instanceID != "" {
+				w.Header().Set("X-Instance-ID", instanceID)
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func newMux() *http.ServeMux {
+	mux := http.NewServeMux()
+	mux.Handle("/log", withOptionalInstanceID(http.HandlerFunc(logHandler)))
+	mux.Handle("/health", withOptionalInstanceID(http.HandlerFunc(healthHandler)))
+	mux.Handle("/ready", withOptionalInstanceID(http.HandlerFunc(readyHandler)))
+	mux.Handle("/metrics", withOptionalInstanceID(promhttp.Handler()))
+	return mux
 }
 
 func logHandler(w http.ResponseWriter, r *http.Request) {
@@ -172,10 +206,6 @@ func main() {
 		port = "8080"
 	}
 
-	http.HandleFunc("/log", logHandler)
-	http.HandleFunc("/health", healthHandler)
-	http.Handle("/metrics", promhttp.Handler())
-
 	log.Printf("SentinelAI Ingestion Service running on :%s (warehouse=%s)", port, warehouseMode)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, newMux()))
 }

@@ -107,7 +107,7 @@ Once running, open:
 | Streamlit Dashboard | http://localhost:8501 |
 | Prometheus | http://localhost:9090 |
 | Grafana (admin / admin) | http://localhost:3000 |
-| Ingestion API | http://localhost:8080 |
+| Ingestion API (NGINX gateway) | http://localhost:8080 |
 | Drift Engine API | http://localhost:7070 |
 | LLM Guard API | http://localhost:8000 |
 
@@ -156,10 +156,14 @@ All configuration is via environment variables.  Copy `.env.example` to `.env` a
 
 ---
 
+## Load-balanced ingestion path
+
+The host-facing ingestion endpoint is an NGINX gateway at port `8080`; Go ingestion replicas are internal-only and can be started with `docker compose up --build --scale ingestion-service=3`. `/health` is liveness and `/ready` includes the Postgres dependency; the CI smoke test checks gateway readiness, multi-replica routing, and continued readiness after one replica stops. The optional `EXPOSE_INSTANCE_ID=true` setting exists only for that test and is disabled by default.
+
 ## 🏗️ Architecture
 
 ```
-User → Go Ingestion API (8080) → Postgres (local) / Snowflake (optional)
+User → NGINX Ingestion Gateway (8080) → Go Ingestion Replicas → Postgres (local) / Snowflake (optional)
                                         ↓
                               Drift Engine C++ (7070)
                                         ↓
