@@ -27,16 +27,40 @@ services:
       WAREHOUSE_MODE: ${WAREHOUSE_MODE:-postgres}
       DATABASE_URL:   ${DATABASE_URL:-postgres://sentinel:sentinel@postgres:5432/sentinel?sslmode=disable}
       PORT:           "8080"
-    ports:
-      - "8080:8080"
+      # Disabled by default; CI enables this to verify multiple replicas route through NGINX.
+      EXPOSE_INSTANCE_ID: ${EXPOSE_INSTANCE_ID:-false}
+    expose:
+      - "8080"
     depends_on:
       postgres:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/ready || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 5
+
+  # ── Public ingress for scaled ingestion replicas ──────────────────────────
+  ingestion-load-balancer:
+    image: nginx:1.27.5-alpine
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./nginx/ingestion-load-balancer.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      ingestion-service:
+        condition: service_healthy
+
+  # NGINX exposes status only on the internal Compose network; Prometheus
+  # receives gateway metrics from this exporter rather than a public endpoint.
+  nginx-prometheus-exporter:
+    image: nginx/nginx-prometheus-exporter:1.4.0
+    restart: unless-stopped
+    command:
+      - "--nginx.scrape-uri=http://ingestion-load-balancer:8080/nginx_status"
+    depends_on:
+      - ingestion-load-balancer
 
   # ── Drift engine (C++ + Python HTTP wrapper) ─────────────────────────────
   drift-engine:
@@ -83,7 +107,7 @@ services:
     environment:
       WAREHOUSE_MODE:   ${WAREHOUSE_MODE:-postgres}
       DATABASE_URL:     ${DATABASE_URL:-postgres://sentinel:sentinel@postgres:5432/sentinel?sslmode=disable}
-      INGESTION_URL:    ${INGESTION_URL:-http://ingestion-service:8080}
+      INGESTION_URL:    ${INGESTION_URL:-http://ingestion-load-balancer:8080}
       DRIFT_ENGINE_URL: ${DRIFT_ENGINE_URL:-http://drift-engine:7070}
       LLM_GUARD_URL:    ${LLM_GUARD_URL:-http://llm-guard:8000}
     ports:
