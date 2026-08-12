@@ -7,6 +7,10 @@ scrape_configs:
     static_configs:
       - targets: ['ingestion-service:8080']
 
+  - job_name: 'ingestion-load-balancer'
+    static_configs:
+      - targets: ['nginx-prometheus-exporter:9113']
+
   - job_name: 'drift-engine'
     static_configs:
       - targets: ['drift-engine:7070']
