@@ -66,11 +66,10 @@ python benchmarks/run_benchmark.py --output benchmarks/latest.json
 2. How sensitive are false positives and false negatives to bin count, threshold selection, and zero-bin handling?
 3. How does native C++ and end-to-end service latency scale with histogram size and concurrent requests?
 4. Which operational metrics best distinguish feature drift from changes in data volume or service latency?
+
 ## Production Readiness Guide
 
 > This section is the portfolio audit entry point for **SentinelAI**. It describes an engineering promotion path; it is not a claim that the repository is already production-authorized.
-
-[![CI](https://img.shields.io/github/actions/workflow/status/CoreyLeath-code/SentinelAI/ci.yml?branch=main&label=CI)](https://github.com/CoreyLeath-code/SentinelAI/actions) [![License](https://img.shields.io/github/license/CoreyLeath-code/SentinelAI)](https://github.com/CoreyLeath-code/SentinelAI/blob/main/LICENSE)
 
 ### Architecture flowchart
 
@@ -81,11 +80,11 @@ flowchart LR
 
 ### Quickstart and local validation
 
-The supported local path should be reproducible from a clean checkout. The inferred stack for this repository is **C++**.
+The repository uses Python services, a Go ingestion service, and a small C++ drift executable. Reproduce the portable evidence or build the statistical engine directly:
 
 ```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build
-ctest --test-dir build --output-on-failure
+python benchmarks/run_benchmark.py --output benchmarks/latest.json
+g++ -std=c++17 drift-engine/drift_engine.cpp -o drift-engine/drift_engine
 ```
 
 If the project uses external services, model artifacts, cloud credentials, or private data, start them through documented local fixtures or mocks. Never place secrets or identifiable records in the repository.
@@ -116,7 +115,7 @@ Use the linked production-readiness issue for this repository as the checklist. 
 
 ## 🏛️ Advanced Platform Architecture & Telemetry Decoupling
 
-To guarantee enterprise-grade performance, SentinelAI enforces strict architectural separation between primary inference loops and the intelligent evaluation layers.
+SentinelAI separates primary inference paths from telemetry and evaluation layers in its local architecture.
 [ Incoming User Query ] ───► [ Async Proxy Gateway ] ───► [ Downstream Application ]
 │
 (Non-Blocking Telemetry Mirror)
