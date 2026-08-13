@@ -24,19 +24,19 @@ The versioned evidence measures a portable Python reference of that decision rul
 Let $p=(p_1,...,p_B)$ and $q=(q_1,...,q_B)$ be expected and actual histogram-bin weights. The C++ engine computes
 
 $
-PSI(p,q) = sum_(i=1)^B (q_i-p_i) log(q_i/p_i),
+\operatorname{PSI}(p,q) = \sum_{i=1}^{B}(q_i-p_i)\log\left(\frac{q_i}{p_i}\right),
 $
 
 summing only bins where both values are positive. It also forms normalized cumulative distributions:
 
 $
-P_k=sum_(i=1)^k p_i/(sum_j p_j),  Q_k=sum_(i=1)^k q_i/(sum_j q_j),  KS(p,q)=max_(1<=k<=B)|P_k-Q_k|.
+P_k=\sum_{i=1}^{k}\frac{p_i}{\sum_jp_j},\qquad Q_k=\sum_{i=1}^{k}\frac{q_i}{\sum_jq_j},\qquad \operatorname{KS}(p,q)=\max_{1\leq k\leq B}|P_k-Q_k|.
 $
 
 The implementation emits a drift event when
 
 $
-drift(p,q) = [PSI(p,q)>0.20] OR [KS(p,q)>0.10].
+\operatorname{drift}(p,q)=[\operatorname{PSI}(p,q)>0.20]\lor[\operatorname{KS}(p,q)>0.10].
 $
 
 This logic is implemented in [drift-engine/drift_engine.cpp](drift-engine/drift_engine.cpp) and mirrored by [benchmarks/run_benchmark.py](benchmarks/run_benchmark.py). The benchmark supplies normalized positive bins; the service does not add smoothing to zero-valued PSI bins, so zero handling is an explicit limitation of the present implementation.
