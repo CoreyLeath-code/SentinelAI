@@ -1,26 +1,126 @@
-name: Automated Release Engineering
+name: SentinelAI Release
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - "v*.*.*"
+  pull_request:
+    paths:
+      - ".github/workflows/release.yml"
+      - "CHANGELOG.md"
+      - "RELEASE_NOTES_v0.1.0.md"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sentinelai-release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  tagging-engine:
-    name: Construct Semantic Version Tags
+  validate:
+    name: Validate release candidate
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
     steps:
-      - name: ⬇️ Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: 🏷️ Calculate Release Version Alpha
-        uses: anothrNick/github-tag-action@1.64.0
+      - name: Verify semantic-version tag and changelog
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        run: |
+          tag="${{ github.ref_name }}"
+          if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid semantic-version tag: $tag" >&2
+            exit 1
+          fi
+          version="${tag#v}"
+          grep -Fq "## [$version]" CHANGELOG.md
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Python test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Run Python test suite
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          WITH_V: true
-          DEFAULT_BUMP: patch
+          PYTHONPATH: .
+        run: pytest tests/ -q
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.21.x"
+          cache-dependency-path: ingestion-service/go.sum
+
+      - name: Run Go ingestion tests
+        working-directory: ingestion-service
+        run: go test ./...
+
+      - name: Build ingestion container
+        run: docker build -t sentinelai-ingestion:release ./ingestion-service
+
+  release:
+    name: Publish GitHub Release
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build deterministic source archive and checksum
+        run: |
+          mkdir -p dist
+          git archive --format=tar --prefix="sentinelai-${{ github.ref_name }}/" "${{ github.sha }}" | gzip -n > "dist/sentinelai-${{ github.ref_name }}.tar.gz"
+          sha256sum "dist/sentinelai-${{ github.ref_name }}.tar.gz" > "dist/sentinelai-${{ github.ref_name }}.tar.gz.sha256"
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: RELEASE_NOTES_v0.1.0.md
+          generate_release_notes: false
+          files: |
+            dist/sentinelai-${{ github.ref_name }}.tar.gz
+            dist/sentinelai-${{ github.ref_name }}.tar.gz.sha256
+
+  publish-container:
+    name: Publish GHCR ingestion image
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: ghcr.io/coreyleath-code/sentinelai-ingestion
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./ingestion-service
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
