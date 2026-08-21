@@ -1,5 +1,24 @@
 # Changelog
 
+All notable release-level changes to SentinelAI are documented here.
+
+## [Unreleased]
+
+## [0.1.0] - 2026-08-21
+
+### Added
+
+- Reproducible PSI/KS drift-decision benchmark artifacts and documented evidence boundaries.
+- Python API test coverage and CI evidence artifacts.
+- Go ingestion-service tests plus multi-replica NGINX readiness/load-balancer smoke testing.
+- Security workflows covering CodeQL, SAST, dependency review, and supply-chain checks.
+- A validated semantic-tag release workflow that creates a GitHub Release and publishes the Go ingestion service to GHCR.
+
+### Changed
+
+- Release automation now requires an explicit semantic-version tag instead of creating tags on every push to `main`.
+- Release claims are scoped to implemented statistical drift monitoring, reproducible synthetic benchmarks, and repository-verified service behavior; no production model-quality or fleet-scale performance claim is introduced.
+
 ## 2026-08-05
 
 ### Recent Code Improvements
