@@ -1,0 +1,45 @@
+name: Refresh ingestion Go sums
+
+on:
+  push:
+    branches: [feature/aws-firehose-s3]
+    paths:
+      - "ingestion-service/go.mod"
+      - ".github/workflows/refresh-ingestion-go-sums.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  tidy:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/aws-firehose-s3
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.x"
+          cache: false
+
+      - name: Refresh module metadata
+        working-directory: ingestion-service
+        run: go mod tidy
+
+      - name: Commit refreshed sums
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ingestion-service/go.mod ingestion-service/go.sum
+          if git diff --cached --quiet; then
+            echo "Go module metadata already current."
+            exit 0
+          fi
+          git commit -m "build: refresh ingestion Go module checksums"
+          git push origin HEAD:feature/aws-firehose-s3
