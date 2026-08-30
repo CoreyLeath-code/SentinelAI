@@ -27,6 +27,10 @@ services:
       WAREHOUSE_MODE: ${WAREHOUSE_MODE:-postgres}
       DATABASE_URL:   ${DATABASE_URL:-postgres://sentinel:sentinel@postgres:5432/sentinel?sslmode=disable}
       PORT:           "8080"
+      FIREHOSE_ENABLED: ${FIREHOSE_ENABLED:-false}
+      FIREHOSE_DELIVERY_STREAM: ${FIREHOSE_DELIVERY_STREAM:-sentinelai-telemetry}
+      FIREHOSE_QUEUE_SIZE: ${FIREHOSE_QUEUE_SIZE:-1000}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
       # Disabled by default; CI enables this to verify multiple replicas route through NGINX.
       EXPOSE_INSTANCE_ID: ${EXPOSE_INSTANCE_ID:-false}
     expose:
