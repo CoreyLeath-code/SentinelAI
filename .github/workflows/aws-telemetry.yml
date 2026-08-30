@@ -1,0 +1,71 @@
+name: AWS Telemetry Validation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "ingestion-service/**"
+      - "terraform/**"
+      - ".github/workflows/aws-telemetry.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ingestion-service/**"
+      - "terraform/**"
+      - ".github/workflows/aws-telemetry.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  firehose-producer:
+    name: Firehose producer unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: ingestion-service
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.x"
+          cache-dependency-path: ingestion-service/go.sum
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Run ingestion tests
+        run: go test ./...
+
+  terraform:
+    name: Terraform fmt and validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.13.3"
+
+      - name: Check formatting
+        run: terraform fmt -check -recursive
+
+      - name: Initialize providers without backend
+        run: terraform init -backend=false -input=false
+
+      - name: Validate configuration
+        run: terraform validate
