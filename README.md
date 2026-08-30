@@ -4,15 +4,21 @@
 
 # SentinelAI — Reproducible Drift-Monitoring Reference System
 
-[![CI](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/ci-cd.yml)
-[![AWS telemetry](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/aws-telemetry.yml/badge.svg)](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/aws-telemetry.yml)
-[![Research benchmark](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/benchmarks.yml/badge.svg)](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/benchmarks.yml)
-[![Security](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/security.yml/badge.svg)](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/security.yml)
-[![SAST](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/sast.yml/badge.svg)](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/sast.yml)
-[![Schema validation](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/data-validation.yml/badge.svg)](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/data-validation.yml)
-[![Reference p95](https://img.shields.io/badge/Python_reference_p95-54.7_%C2%B5s-6f42c1)](benchmarks/benchmark_report.md)
-[![Synthetic decision F1](https://img.shields.io/badge/synthetic_decision_F1-1.000-2ea44f)](benchmarks/benchmark_report.md)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+<p align="center">
+  <a href="https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/ci-cd.yml"><img alt="CI" src="https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/ci-cd.yml/badge.svg" /></a>
+  <a href="https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/aws-telemetry.yml"><img alt="AWS telemetry CI" src="https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/aws-telemetry.yml/badge.svg" /></a>
+  <a href="https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/benchmarks.yml"><img alt="Research benchmark" src="https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/benchmarks.yml/badge.svg" /></a>
+  <a href="https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/security.yml"><img alt="Security" src="https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/security.yml/badge.svg" /></a>
+  <a href="https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/sast.yml"><img alt="SAST" src="https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/sast.yml/badge.svg" /></a>
+  <a href="https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/data-validation.yml"><img alt="Schema validation" src="https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/data-validation.yml/badge.svg" /></a>
+</p>
+
+<p align="center">
+  <a href="docs/aws-firehose-s3.md"><img alt="AWS Data Firehose and S3" src="https://img.shields.io/badge/AWS-Data%20Firehose%20%2B%20S3-FF9900?logo=amazonwebservices&amp;logoColor=white" /></a>
+  <a href="benchmarks/benchmark_report.md"><img alt="Python reference p95" src="https://img.shields.io/badge/Python_reference_p95-54.7_%C2%B5s-6f42c1" /></a>
+  <a href="benchmarks/benchmark_report.md"><img alt="Synthetic decision F1" src="https://img.shields.io/badge/synthetic_decision_F1-1.000-2ea44f" /></a>
+  <a href="LICENSE"><img alt="License MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" /></a>
+</p>
 
 ## Abstract
 
