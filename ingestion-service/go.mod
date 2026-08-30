@@ -1,8 +1,10 @@
 module sentinel/ingestion-service
 
-go 1.21
+go 1.24
 
 require (
+	github.com/aws/aws-sdk-go-v2/config v1.32.36
+	github.com/aws/aws-sdk-go-v2/service/firehose v1.48.1
 	github.com/lib/pq v1.10.9
 	github.com/prometheus/client_golang v1.19.1
 )
