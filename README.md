@@ -5,6 +5,7 @@
 # SentinelAI — Reproducible Drift-Monitoring Reference System
 
 [![CI](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/ci-cd.yml)
+[![AWS telemetry](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/aws-telemetry.yml/badge.svg)](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/aws-telemetry.yml)
 [![Research benchmark](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/benchmarks.yml/badge.svg)](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/benchmarks.yml)
 [![Security](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/security.yml/badge.svg)](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/security.yml)
 [![SAST](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/sast.yml/badge.svg)](https://github.com/CoreyLeath-code/SentinelAI/actions/workflows/sast.yml)
@@ -17,7 +18,9 @@
 
 SentinelAI is a multi-service observability prototype for AI systems. Its directly implemented statistical component compares an expected and an observed histogram with Population Stability Index (PSI) and a Kolmogorov–Smirnov (KS) CDF distance, then raises a drift flag when either configured threshold is crossed.
 
-The versioned evidence measures a portable Python reference of that decision rule on seeded 32-bin synthetic histograms—not native C++ execution, HTTP latency, concurrent service load, or production drift-detection accuracy. The benchmark is a repeatable regression signal, not a claim of real-world model quality.
+The Go ingestion service can optionally mirror accepted inference telemetry to Amazon Data Firehose, which Terraform configures to deliver GZIP-compressed NDJSON objects into a private, versioned, encrypted Amazon S3 telemetry bucket. This AWS path is disabled by default for local development and is a best-effort observability mirror, not a transactional dual-write guarantee.
+
+The versioned evidence measures a portable Python reference of the drift decision rule on seeded 32-bin synthetic histograms—not native C++ execution, HTTP latency, concurrent service load, Firehose/S3 throughput, or production drift-detection accuracy. The benchmark is a repeatable regression signal, not a claim of real-world model quality.
 
 ## Formal decision rule
 
@@ -112,23 +115,25 @@ The intended use, excluded use, data/credential handling, model or algorithm lim
 **What should be completed next?**  
 Use the linked production-readiness issue for this repository as the checklist. Resolve missing tests, deployment instructions, observability, supply-chain controls, and release evidence before attaching a production claim.
 
-
 ## 🏛️ Advanced Platform Architecture & Telemetry Decoupling
 
 SentinelAI separates primary inference paths from telemetry and evaluation layers in its local architecture.
+
+```text
 [ Incoming User Query ] ───► [ Async Proxy Gateway ] ───► [ Downstream Application ]
-│
-(Non-Blocking Telemetry Mirror)
-▼
-┌──────────────────────────────────────┐
-│    SentinelAI Asynchronous Engine    │
-├──────────────────────────────────────┤
-│  • Parallelized Guardrail Evaluation │
-│  • GPT-4 Intelligent SRE Diagnostics │
-│  • Token Cost & Allocation Trackers  │
-└──────────────────┬───────────────────┘
-▼
-[ Streamlit Observability Control Plane ]
+                                      │
+                         (Non-Blocking Telemetry Mirror)
+                                      ▼
+                    ┌──────────────────────────────────────┐
+                    │    SentinelAI Asynchronous Engine    │
+                    ├──────────────────────────────────────┤
+                    │  • Parallelized Guardrail Evaluation │
+                    │  • LLM SRE Diagnostics               │
+                    │  • Token Cost & Allocation Trackers  │
+                    └──────────────────┬───────────────────┘
+                                       ▼
+                         [ Streamlit Observability Control Plane ]
+```
 
 ## 🚀 Quickstart — Docker Compose (recommended)
 
@@ -181,7 +186,7 @@ curl -X POST http://localhost:8000/summarize \
 
 ## ⚙️ Configuration
 
-All configuration is via environment variables.  Copy `.env.example` to `.env` and adjust.
+All configuration is via environment variables. Copy `.env.example` to `.env` and adjust.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
@@ -190,6 +195,10 @@ All configuration is via environment variables.  Copy `.env.example` to `.env` a
 | `POSTGRES_USER` | `sentinel` | Postgres user |
 | `POSTGRES_PASSWORD` | `sentinel` | Postgres password |
 | `POSTGRES_DB` | `sentinel` | Postgres database |
+| `FIREHOSE_ENABLED` | `false` | Enables the optional non-blocking Amazon Data Firehose telemetry mirror |
+| `FIREHOSE_DELIVERY_STREAM` | `sentinelai-telemetry` | Firehose delivery stream name |
+| `FIREHOSE_QUEUE_SIZE` | `1000` | Maximum in-memory records waiting for Firehose delivery |
+| `AWS_REGION` | `us-east-1` | AWS region used by the Firehose client |
 | `OLLAMA_HOST` | `http://ollama:11434` | Ollama endpoint (optional) |
 | `LLM_MODEL` | `llama2` | LLM model name |
 | `API_BEARER_TOKEN` | *(unset)* | Required shared bearer token for `POST /infer`; the endpoint returns 503 until configured |
@@ -202,10 +211,16 @@ All configuration is via environment variables.  Copy `.env.example` to `.env` a
 
 The host-facing ingestion endpoint is an NGINX gateway at port `8080`; Go ingestion replicas are internal-only and can be started with `docker compose up --build --scale ingestion-service=3`. `/health` is liveness and `/ready` includes the Postgres dependency; the CI smoke test checks gateway readiness, multi-replica routing, and continued readiness after one replica stops. The optional `EXPOSE_INSTANCE_ID=true` setting exists only for that test and is disabled by default.
 
+When `FIREHOSE_ENABLED=true`, a bounded worker mirrors accepted inference events to Amazon Data Firehose after the primary warehouse path succeeds. Firehose queue pressure or AWS delivery errors do not change `/ready` and do not fail an otherwise accepted primary ingestion request; they are surfaced through Prometheus metrics and logs.
+
 ## 🏗️ Architecture
 
-```
+```text
 User → NGINX Ingestion Gateway (8080) → Go Ingestion Replicas → Postgres (local) / Snowflake (optional)
+                                        │
+                                        ├──► bounded Firehose queue ──► Amazon Data Firehose ──► Amazon S3
+                                        │                                  │
+                                        │                                  └──► CloudWatch delivery logs
                                         ↓
                               Drift Engine C++ (7070)
                                         ↓
@@ -220,13 +235,66 @@ User → NGINX Ingestion Gateway (8080) → Go Ingestion Replicas → Postgres (
 
 | Service | Language | Port | Description |
 |---------|----------|------|-------------|
-| `ingestion-service` | Go | 8080 | Receives inference logs, writes to warehouse |
+| `ingestion-service` | Go | 8080 | Receives inference logs, writes to warehouse, optionally mirrors to Firehose |
 | `drift-engine` | C++ + Python | 7070 | PSI/KS drift detection |
 | `llm-guard` | Python | 8000 | LLM-powered incident summarization |
 | `streamlit-dashboard` | Python | 8501 | Control plane UI |
 | `postgres` | — | 5432 | Local warehouse (default) |
 | `prometheus` | — | 9090 | Metrics scraping |
 | `grafana` | — | 3000 | Dashboards |
+| Amazon Data Firehose | AWS managed | — | Optional telemetry buffering and delivery |
+| Amazon S3 | AWS managed | — | Optional compressed telemetry lake |
+
+---
+
+## ☁️ AWS telemetry mirror — Amazon Data Firehose + S3
+
+The `terraform/` configuration defines an AWS telemetry path that can be provisioned independently of local Docker Compose:
+
+```mermaid
+flowchart LR
+    App[Model / application] --> Gateway[NGINX]
+    Gateway --> Go[Go ingestion replicas]
+    Go --> Warehouse[(Postgres / Snowflake path)]
+    Go -. bounded fail-open mirror .-> Queue[In-memory queue]
+    Queue --> Firehose[Amazon Data Firehose]
+    Firehose --> S3[(Private S3 telemetry bucket)]
+    Firehose --> CW[CloudWatch delivery logs]
+```
+
+Terraform defines a private S3 bucket with public-access blocking, versioning, SSE-S3 encryption and a configurable retention policy; a Firehose stream with 60-second / 5-MiB buffering, GZIP compression and time-partitioned S3 prefixes; CloudWatch delivery logging; a Firehose service role; and a separate least-privilege writer policy for the SentinelAI workload.
+
+```bash
+cd terraform
+terraform init
+terraform fmt -check
+terraform validate
+terraform plan
+```
+
+Do not commit AWS access keys. The Go producer uses the AWS SDK default credential chain; for an EKS deployment, attach the Terraform `firehose_writer_policy_arn` output to the ingestion workload identity rather than injecting long-lived credentials.
+
+Producer-side observability is exposed through:
+
+```text
+ingestion_firehose_records_total{status="queued"}
+ingestion_firehose_records_total{status="delivered"}
+ingestion_firehose_records_total{status="error"}
+ingestion_firehose_records_total{status="dropped"}
+```
+
+### AWS validation boundary
+
+The repository CI validates the AWS integration code without requiring AWS credentials:
+
+- `go mod tidy` must produce no module-file drift.
+- `go test ./...` validates Firehose configuration and NDJSON `PutRecord` behavior against a fake client.
+- `terraform fmt`, `terraform init -backend=false`, and `terraform validate` verify the IaC syntax and provider graph.
+- The normal Docker Compose CI continues to exercise the local multi-replica ingestion path with Firehose disabled by default.
+
+CI does **not** run `terraform apply`, create billable AWS resources, or prove live Firehose-to-S3 delivery. Live AWS throughput, durability, retry behavior, IAM attachment, and end-to-end delivery latency remain deployment-level validation work.
+
+This path is implemented as a best-effort telemetry mirror. The queue is bounded and in-memory, process termination can lose queued mirror records, and SDK retries may create duplicates. See [docs/aws-firehose-s3.md](docs/aws-firehose-s3.md) for deployment, IAM, failure semantics, observability, and cost controls.
 
 ---
 
@@ -257,138 +325,36 @@ python benchmarks/run_benchmark.py --output benchmarks/latest.json
 
 CI reruns the benchmark on every pull request, validates its schema and F1 regression floor, and uploads raw evidence for 30 days. For comparable hosts, median or P95 increases above 15% require investigation and a documented baseline update.
 
-The perfect synthetic classification result is a regression signal for deliberately separated perturbation classes; it is **not** a production accuracy claim. Native C++, service concurrency, network, warehouse, GPU, and real-world labeled drift benchmarks remain future evaluation layers.
+The perfect synthetic classification result is a regression signal for deliberately separated perturbation classes; it is **not** a production accuracy claim. Native C++, service concurrency, network, warehouse, GPU, Firehose/S3 throughput, and real-world labeled drift benchmarks remain future evaluation layers.
 
 ### Test and evidence status
 
-| Evidence | Current state | Source |
-|---|---:|---|
-| Benchmark raw data | Versioned JSON | `benchmarks/latest.json` |
-| Benchmark methodology | Versioned report | `benchmarks/benchmark_report.md` |
-| Benchmark CI | Required execution + artifact | `.github/workflows/benchmarks.yml` |
-| Drift thresholds | PSI 0.20 · KS 0.10 | `g++ -std=c++17 drift-engine/drift_engine.cpp -o drift-engine/drift_engine`; source: `drift-engine/drift_engine.cpp` |
+| Evidence | Current repository contract | Source |
+|---|---|---|
+| Drift benchmark raw data | Versioned JSON | `benchmarks/latest.json` |
+| Drift benchmark methodology | Versioned report | `benchmarks/benchmark_report.md` |
+| Firehose producer validation | Unit-tested configuration + serialized `PutRecord` payloads | `ingestion-service/firehose_test.go` |
+| AWS IaC validation | Formatting, provider initialization without backend, Terraform validation | `.github/workflows/aws-telemetry.yml` |
+| Local ingestion resilience | Multi-replica NGINX routing and one-replica-loss readiness smoke test | `.github/workflows/ci-cd.yml` |
 
-### Observability Metrics
+### Observability metrics
 
-| Metric Name | Type | Emitted By | Purpose |
+| Metric | Type | Emitted by | Purpose |
 |---|---|---|---|
-| `sentinel_requests_total` | Counter | `monitoring/metrics.py` | API request volume |
-| `sentinel_request_latency_seconds` | Histogram | `monitoring/metrics.py` | API request latency |
-| `inference_requests_total` | Counter | `monitoring/prometheus.py` | Inference request volume |
-| `ingestion_logs_total{status}` | Counter | `ingestion-service/main.go` | Ingestion outcome counts |
-| `ingestion_handler_seconds` | Histogram | `ingestion-service/main.go` | Go ingestion handler latency |
+| `ingestion_logs_total{status}` | Counter | `ingestion-service/main.go` | Primary ingestion outcomes |
+| `ingestion_handler_seconds` | Histogram | `ingestion-service/main.go` | Ingestion handler latency |
+| `ingestion_firehose_records_total{status}` | Counter | `ingestion-service/firehose.go` | Firehose queued, delivered, error, and dropped records |
 | `drift_detected_total` | Counter | `drift-engine/server.py` | Drift event count |
 | `drift_compute_seconds` | Histogram | `drift-engine/server.py` | Drift calculation latency |
 | `llm_guard_summaries_total{method}` | Counter | `llm-guard/app.py` | Ollama vs fallback summary count |
 | `llm_guard_summary_seconds` | Histogram | `llm-guard/app.py` | Summary generation latency |
-| `requests_total` | Counter | `backend/app/main.py` | Backend request volume |
-
-
-
-## Design Targets (Not Measured)
-
-The following historical values are retained for planning and comparison, but no committed generator or CI artifact establishes them as current measurements at this commit. They must not be treated as benchmark results or release evidence.
-
-### Historical validation claims
-
-| Evidence | Current state | Evidence status |
-|---|---:|---|
-| Focused API tests | 4 passed | No committed command/output establishes this historical audit value |
-| Focused API coverage | 24% | No committed command/output establishes this historical audit value; the former static badge was removed |
-
-### Historical project inventory
-
-| Area | Metric | Current Value | Source |
-|---|---:|---:|---|
-| Codebase | Tracked files | 98 | `git ls-files` |
-| Codebase | Python files | 32 | `*.py` files |
-| Codebase | Go files | 1 | `ingestion-service/main.go` |
-| Codebase | C++ files | 4 | Drift and ingestion engine sources |
-| Codebase | TypeScript files | 7 | `frontend/` |
-| Codebase | Source NCLOC | 1,201 | Non-empty, non-comment Python/Go/C++/TS lines |
-| Tests | Python test files | 6 | `tests/` |
-| Tests | Test declarations | 5 | `def test_*` scan |
-| Tests | Focused API validation | 4 passed | `pytest tests/test_*.py` focused API scope |
-| Tests | Focused `api` coverage | 24% | Local coverage run |
-| CI/CD | GitHub Actions workflows | 7 | `.github/workflows/*.yml` |
-| Dependencies | Python runtime dependencies | 11 | `requirements.txt` |
-| Delivery | Dockerfiles | 5 | Root/services/dashboard Docker assets |
-| Delivery | Kubernetes manifests | 9 | `k8s/*.yaml` |
-| Delivery | Helm chart files | 1 | `helm/sentinel/templates/deployment.yaml` |
-| Infrastructure | Terraform files | 1 | `terraform/main,TF` |
-| Monitoring | Monitoring config files | 5 | `monitoring/` |
-| Services | Docker Compose service URLs | 6 | Dashboard, Prometheus, Grafana, ingestion, drift, LLM guard |
-| Validation limits | Native Go/C++ compile checks | Not run locally | Go/g++/MSVC unavailable in workspace |
 
 ---
 
-## 🧠 Extended Q&A
+## Engineering roadmap
 
-### Why use C++ for drift detection?
-To achieve sub-millisecond statistical scoring at scale.
-
-### Why Go for ingestion?
-Go provides efficient concurrency and low-latency HTTP handling.
-
-### Why Postgres locally (not Snowflake)?
-Postgres is free, runs in Docker, and supports the same SQL schema.  Switch to `WAREHOUSE_MODE=snowflake` when you're ready to push to production.
-
-### Why MLflow?
-Experiment tracking, reproducibility, and version control.
-
-### Why LangChain + Ollama?
-LLM-powered root cause summarization and RAG over historical incidents.
-
-### Why Kubernetes?
-Horizontal scaling and production-grade orchestration.
-
-### Why Terraform?
-Reproducible infrastructure as code.
-
----
-
-## 🏢 Enterprise Value
-
-SentinelAI demonstrates:
-
-- AI system lifecycle management
-- Drift monitoring
-- MLOps integration
-- Distributed systems engineering
-- Cloud-native architecture
-- LLM augmentation
-- Observability & metrics-driven design
-
----
-
-## 🔧 Recent Code Improvements
-
-See [CHANGELOG.md](CHANGELOG.md) for the dated fix history.
-
-### Running tests locally
-
-```bash
-pip install -r requirements.txt
-pytest tests/ -v
-```
-
-### Environment variables added
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `API_USERNAME` | `admin` | Login username for the API auth endpoint |
-| `API_PASSWORD` | *(unset — auth disabled until set)* | Login password; must be set to enable auth |
-| `LLM_MODEL_NAME` | `meta-llama/Meta-Llama-3-8B` | HuggingFace model used by the inference route |
-
----
-
-
-
-- Add automated retraining pipeline
-- Add Shadow Model Deployment
-- Add Cost Optimization Engine
-- Add Hallucination Classifier Model
-
-
-
-
+- Add an ephemeral live-AWS integration test that proves Firehose delivery into a disposable S3 prefix without turning normal PR CI into a billable deployment.
+- Add `PutRecordBatch` batching and measured queue/backpressure benchmarks before claiming higher producer throughput.
+- Add a durable local spool or explicit replay mechanism for mirror records that cannot be lost on process termination.
+- Attach the writer policy through an EKS workload identity path and validate least-privilege IAM end to end.
+- Add Athena/Glue-compatible telemetry schemas only after a concrete query workload and reproducible evidence exist.
