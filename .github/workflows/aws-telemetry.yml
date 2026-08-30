@@ -37,8 +37,10 @@ jobs:
           go-version: "1.24.x"
           cache-dependency-path: ingestion-service/go.sum
 
-      - name: Download dependencies
-        run: go mod download
+      - name: Verify module files are tidy
+        run: |
+          go mod tidy
+          git diff --exit-code -- go.mod go.sum
 
       - name: Run ingestion tests
         run: go test ./...
@@ -61,8 +63,10 @@ jobs:
         with:
           terraform_version: "1.13.3"
 
-      - name: Check formatting
-        run: terraform fmt -check -recursive
+      - name: Verify Terraform formatting
+        run: |
+          terraform fmt -recursive
+          git diff --exit-code -- .
 
       - name: Initialize providers without backend
         run: terraform init -backend=false -input=false
