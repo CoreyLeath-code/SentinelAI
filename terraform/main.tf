@@ -77,6 +77,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "sentinel_logs" {
     expiration {
       days = var.telemetry_retention_days
     }
+
+    noncurrent_version_expiration {
+      noncurrent_days = var.telemetry_retention_days
+    }
   }
 }
 
@@ -138,6 +142,7 @@ data "aws_iam_policy_document" "firehose_delivery" {
     effect = "Allow"
     actions = [
       "s3:AbortMultipartUpload",
+      "s3:GetObject",
       "s3:PutObject"
     ]
     resources = ["${aws_s3_bucket.sentinel_logs.arn}/*"]
