@@ -115,7 +115,6 @@ The intended use, excluded use, data/credential handling, model or algorithm lim
 **What should be completed next?**  
 Use the linked production-readiness issue for this repository as the checklist. Resolve missing tests, deployment instructions, observability, supply-chain controls, and release evidence before attaching a production claim.
 
-
 ## 🏛️ Advanced Platform Architecture & Telemetry Decoupling
 
 SentinelAI separates primary inference paths from telemetry and evaluation layers in its local architecture.
@@ -263,7 +262,7 @@ flowchart LR
     Firehose --> CW[CloudWatch delivery logs]
 ```
 
-Terraform provisions a private S3 bucket with public-access blocking, versioning, SSE-S3 encryption and a configurable retention policy; a Firehose stream with 60-second / 5-MiB buffering, GZIP compression and time-partitioned S3 prefixes; CloudWatch delivery logging; a Firehose service role; and a separate least-privilege writer policy for the SentinelAI workload.
+Terraform defines a private S3 bucket with public-access blocking, versioning, SSE-S3 encryption and a configurable retention policy; a Firehose stream with 60-second / 5-MiB buffering, GZIP compression and time-partitioned S3 prefixes; CloudWatch delivery logging; a Firehose service role; and a separate least-privilege writer policy for the SentinelAI workload.
 
 ```bash
 cd terraform
@@ -283,6 +282,17 @@ ingestion_firehose_records_total{status="delivered"}
 ingestion_firehose_records_total{status="error"}
 ingestion_firehose_records_total{status="dropped"}
 ```
+
+### AWS validation boundary
+
+The repository CI validates the AWS integration code without requiring AWS credentials:
+
+- `go mod tidy` must produce no module-file drift.
+- `go test ./...` validates Firehose configuration and NDJSON `PutRecord` behavior against a fake client.
+- `terraform fmt`, `terraform init -backend=false`, and `terraform validate` verify the IaC syntax and provider graph.
+- The normal Docker Compose CI continues to exercise the local multi-replica ingestion path with Firehose disabled by default.
+
+CI does **not** run `terraform apply`, create billable AWS resources, or prove live Firehose-to-S3 delivery. Live AWS throughput, durability, retry behavior, IAM attachment, and end-to-end delivery latency remain deployment-level validation work.
 
 This path is implemented as a best-effort telemetry mirror. The queue is bounded and in-memory, process termination can lose queued mirror records, and SDK retries may create duplicates. See [docs/aws-firehose-s3.md](docs/aws-firehose-s3.md) for deployment, IAM, failure semantics, observability, and cost controls.
 
@@ -316,3 +326,35 @@ python benchmarks/run_benchmark.py --output benchmarks/latest.json
 CI reruns the benchmark on every pull request, validates its schema and F1 regression floor, and uploads raw evidence for 30 days. For comparable hosts, median or P95 increases above 15% require investigation and a documented baseline update.
 
 The perfect synthetic classification result is a regression signal for deliberately separated perturbation classes; it is **not** a production accuracy claim. Native C++, service concurrency, network, warehouse, GPU, Firehose/S3 throughput, and real-world labeled drift benchmarks remain future evaluation layers.
+
+### Test and evidence status
+
+| Evidence | Current repository contract | Source |
+|---|---|---|
+| Drift benchmark raw data | Versioned JSON | `benchmarks/latest.json` |
+| Drift benchmark methodology | Versioned report | `benchmarks/benchmark_report.md` |
+| Firehose producer validation | Unit-tested configuration + serialized `PutRecord` payloads | `ingestion-service/firehose_test.go` |
+| AWS IaC validation | Formatting, provider initialization without backend, Terraform validation | `.github/workflows/aws-telemetry.yml` |
+| Local ingestion resilience | Multi-replica NGINX routing and one-replica-loss readiness smoke test | `.github/workflows/ci-cd.yml` |
+
+### Observability metrics
+
+| Metric | Type | Emitted by | Purpose |
+|---|---|---|---|
+| `ingestion_logs_total{status}` | Counter | `ingestion-service/main.go` | Primary ingestion outcomes |
+| `ingestion_handler_seconds` | Histogram | `ingestion-service/main.go` | Ingestion handler latency |
+| `ingestion_firehose_records_total{status}` | Counter | `ingestion-service/firehose.go` | Firehose queued, delivered, error, and dropped records |
+| `drift_detected_total` | Counter | `drift-engine/server.py` | Drift event count |
+| `drift_compute_seconds` | Histogram | `drift-engine/server.py` | Drift calculation latency |
+| `llm_guard_summaries_total{method}` | Counter | `llm-guard/app.py` | Ollama vs fallback summary count |
+| `llm_guard_summary_seconds` | Histogram | `llm-guard/app.py` | Summary generation latency |
+
+---
+
+## Engineering roadmap
+
+- Add an ephemeral live-AWS integration test that proves Firehose delivery into a disposable S3 prefix without turning normal PR CI into a billable deployment.
+- Add `PutRecordBatch` batching and measured queue/backpressure benchmarks before claiming higher producer throughput.
+- Add a durable local spool or explicit replay mechanism for mirror records that cannot be lost on process termination.
+- Attach the writer policy through an EKS workload identity path and validate least-privilege IAM end to end.
+- Add Athena/Glue-compatible telemetry schemas only after a concrete query workload and reproducible evidence exist.
