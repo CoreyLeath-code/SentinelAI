@@ -1,9 +1,13 @@
 // ingestion-service/main.go — SentinelAI inference-log ingestion endpoint.
 //
 // Environment variables:
-//   DATABASE_URL   — Postgres DSN (required when WAREHOUSE_MODE=postgres)
-//   WAREHOUSE_MODE — "postgres" (default) | "snowflake"
-//   PORT           — listen port (default 8080)
+//   DATABASE_URL              — Postgres DSN (required when WAREHOUSE_MODE=postgres)
+//   WAREHOUSE_MODE            — "postgres" (default) | "snowflake"
+//   FIREHOSE_ENABLED          — mirror accepted telemetry to Amazon Data Firehose when true
+//   FIREHOSE_DELIVERY_STREAM  — Firehose stream name (required when enabled)
+//   FIREHOSE_QUEUE_SIZE       — bounded in-memory mirror queue size (default 1000)
+//   AWS_REGION                — AWS region for Firehose (default us-east-1)
+//   PORT                      — listen port (default 8080)
 package main
 
 import (
@@ -62,6 +66,7 @@ type InferenceLog struct {
 // ---------------------------------------------------------------------------
 
 var db *sql.DB
+var firehoseMirror *firehoseDispatcher
 
 // ---------------------------------------------------------------------------
 // Handlers
@@ -75,6 +80,8 @@ func healthHandler(w http.ResponseWriter, _ *http.Request) {
 }
 
 // readyHandler reports whether this replica can accept durable ingestion writes.
+// Firehose is an optional fail-open telemetry mirror, so its health is exposed by
+// metrics/logs rather than making the primary ingestion readiness depend on AWS.
 func readyHandler(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if db != nil {
@@ -133,7 +140,7 @@ func logHandler(w http.ResponseWriter, r *http.Request) {
 		entry.Status = "ok"
 	}
 	if entry.Timestamp.IsZero() {
-		entry.Timestamp = time.Now()
+		entry.Timestamp = time.Now().UTC()
 	}
 
 	warehouseMode := os.Getenv("WAREHOUSE_MODE")
@@ -158,9 +165,16 @@ func logHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		// Snowflake or no DB — just log for now
+		// Snowflake or no DB — just log for now.
 		log.Printf("[%s] model=%s latency=%dms status=%s",
 			warehouseMode, entry.ModelID, entry.LatencyMs, entry.Status)
+	}
+
+	// The AWS path is intentionally a non-blocking mirror. Queue pressure or a
+	// transient Firehose failure is visible in metrics and logs but does not turn
+	// telemetry delivery into a failure of the primary ingestion request.
+	if firehoseMirror != nil {
+		firehoseMirror.enqueue(entry)
 	}
 
 	ingestTotal.WithLabelValues("ok").Inc()
@@ -199,6 +213,15 @@ func main() {
 			log.Fatalf("could not connect to postgres: %v", err)
 		}
 		log.Println("connected to postgres")
+	}
+
+	var err error
+	firehoseMirror, err = newFirehoseDispatcher()
+	if err != nil {
+		log.Fatalf("could not configure Firehose mirror: %v", err)
+	}
+	if firehoseMirror != nil {
+		log.Printf("Amazon Data Firehose mirror enabled (stream=%s)", firehoseMirror.publisher.streamName)
 	}
 
 	port := os.Getenv("PORT")
