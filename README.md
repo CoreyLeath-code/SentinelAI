@@ -364,3 +364,28 @@ The perfect synthetic classification result is a regression signal for deliberat
 - Add a durable local spool or explicit replay mechanism for mirror records that cannot be lost on process termination.
 - Attach the writer policy through an EKS workload identity path and validate least-privilege IAM end to end.
 - Add Athena/Glue-compatible telemetry schemas only after a concrete query workload and reproducible evidence exist.
+
+
+---
+
+## Ownership, promotion, and operational lifecycle
+
+**Accountable owner:** [Corey Leath](https://github.com/CoreyLeath-code) maintains this portfolio repository. Contributions and operational changes should be traceable through GitHub issues, pull requests, review, and a versioned release record.
+
+**Evidence boundary:** this repository documents a reproducible engineering project. It must not be interpreted as a claim of a continuously operated production service, live customer deployment, or managed staging environment unless that evidence is explicitly linked here.
+
+| Lifecycle stage | Ownership and control | Promotion evidence |
+|---|---|---|
+| **Develop** | The change owner works in an isolated branch or local environment, uses example configuration rather than secrets, and updates tests and documentation with the code. | Local validation plus the repository's automated checks where configured. |
+| **Stage** | The maintainer validates the deployable artifact and environment-specific configuration before a production promotion. | No always-on hosted staging environment is asserted by this README; staging must use non-production credentials/data and record validation results. |
+| **Produce** | The maintainer approves a versioned release only after required checks, security review, and rollback expectations have been evaluated. | A Git tag, release notes, immutable artifact or image digest where applicable, and a documented rollback target. |
+| **Monitor** | The maintainer owns service health, error, latency, data/model-quality, and security signals appropriate to the project. | Logs, metrics, dashboards, alerts, and an incident record where an operational deployment exists. |
+
+### Operating expectations
+
+- Treat configuration, credentials, datasets, model artifacts, and infrastructure state as environment-specific; do not commit secrets or production data.
+- Block promotion when automated validation, dependency/security checks, or release evidence is incomplete.
+- Record material incidents, remediation, and follow-up work in GitHub so ownership survives handoffs.
+- Reassess this lifecycle when the project gains a real hosted environment, service-level objective, on-call rotation, or regulated-use case.
+
+*Lifecycle statement added during the portfolio L6 audit on 2026-11-11.*
