@@ -213,7 +213,7 @@ All configuration is via environment variables. Copy `.env.example` to `.env` an
 | `AWS_REGION` | `us-east-1` | AWS region used by the Firehose client |
 | `OLLAMA_HOST` | `http://ollama:11434` | Ollama endpoint (optional) |
 | `LLM_MODEL` | `llama2` | LLM model name |
-| `API_BEARER_TOKEN` | *(unset)* | Required shared bearer token for `POST /infer`; the endpoint returns 503 until configured |
+| `API_BEARER_TOKEN` | *(unset)* | Required shared bearer token for `POST /infer` and `POST /predict`; both endpoints return 503 until configured |
 
 **Snowflake (optional):** set `WAREHOUSE_MODE=snowflake` and fill in `SNOWFLAKE_ACCOUNT`, `SNOWFLAKE_USER`, `SNOWFLAKE_PASSWORD`, `SNOWFLAKE_DATABASE`, `SNOWFLAKE_SCHEMA`, `SNOWFLAKE_WAREHOUSE`.
 
