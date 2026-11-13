@@ -1,12 +1,12 @@
 import hmac
 import os
 
-from fastapi import Depends, FastAPI, HTTPException, Header, Request
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from api.inference import run_inference
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import List, Optional
 
 limiter = Limiter(key_func=get_remote_address)
@@ -19,7 +19,9 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 FEATURE_DIMENSIONS = 16
 
 class RequestModel(BaseModel):
-    """Fixed-width feature vector required by the shipped SentinelModel."""
+    """Fixed-width, finite feature vector required by the shipped SentinelModel."""
+
+    model_config = ConfigDict(allow_inf_nan=False)
 
     features: List[float] = Field(
         min_length=FEATURE_DIMENSIONS,
@@ -29,7 +31,9 @@ class RequestModel(BaseModel):
 
 
 class PromptRequest(BaseModel):
-    prompt: str
+    """Bounded text request for the inference stub."""
+
+    prompt: str = Field(min_length=1, max_length=4_000)
 
 
 def _require_bearer(authorization: Optional[str] = Header(default=None)) -> str:
@@ -61,8 +65,15 @@ def health():
 
 
 @app.post("/predict")
-def predict(request: RequestModel):
-    result = run_inference(request.features)
+@limiter.limit("30/minute")
+def predict(
+    request: Request,
+    body: RequestModel,
+    _token: str = Depends(_require_bearer),
+):
+    """Run the model only for authenticated, bounded requests."""
+
+    result = run_inference(body.features)
     return {"prediction": result}
 
 
