@@ -4,7 +4,7 @@ go 1.24
 
 require (
 	github.com/aws/aws-sdk-go-v2/config v1.33.18
-	github.com/aws/aws-sdk-go-v2/service/firehose v1.48.1
+	github.com/aws/aws-sdk-go-v2/service/firehose v1.52.12
 	github.com/lib/pq v1.12.3
 	github.com/prometheus/client_golang v1.19.1
 )
