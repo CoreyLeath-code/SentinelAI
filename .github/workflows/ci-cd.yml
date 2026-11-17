@@ -55,6 +55,11 @@ jobs:
     name: Ingestion load-balancer smoke test
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      # Disposable CI credentials, never used for a deployed environment.
+      POSTGRES_PASSWORD: ci-only-local-password
+      DATABASE_URL: postgres://sentinel:ci-only-local-password@postgres:5432/sentinel?sslmode=disable
+      GF_ADMIN_PASSWORD: ci-only-not-used
 
     steps:
       - name: Checkout repository
