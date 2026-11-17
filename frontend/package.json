@@ -23,6 +23,6 @@
     "@tailwindcss/postcss": "4.3.5",
     "postcss": "^8.4.0",
     "tailwindcss": "4.3.5",
-    "typescript": "^5.7.0"
+    "typescript": "^7.0.2"
   }
 }
