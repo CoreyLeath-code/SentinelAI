@@ -36,8 +36,8 @@ jobs:
       - name: Install frontend dependencies
         run: npm install --no-fund
 
-      - name: Audit production dependencies (high and critical)
-        run: npm audit --omit=dev --audit-level=high
+      - name: Audit dependencies (high and critical)
+        run: npm audit --audit-level=high
 
       - name: Verify production build
         run: npm run build
