@@ -2,5 +2,42 @@ version: 2
 updates:
   - package-ecosystem: github-actions
     directory: /
-    schedule: {interval: weekly}
+    schedule:
+      interval: weekly
     open-pull-requests-limit: 10
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: pip
+    directory: /llm-guard
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: pip
+    directory: /drift-engine
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: pip
+    directory: /streamlit-dashboard
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: gomod
+    directory: /ingestion-service
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
