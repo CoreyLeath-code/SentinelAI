@@ -1,9 +1,21 @@
 name: Dependency Review
-on: {pull_request:}
-permissions: {contents: read, pull-requests: read}
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   review:
+    name: Dependency vulnerability review
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/dependency-review-action@v4
-        with: {fail-on-severity: high}
+      - name: Checkout pull request
+        uses: actions/checkout@v7
+      - name: Check introduced dependency vulnerabilities
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
