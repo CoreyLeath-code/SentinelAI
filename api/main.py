@@ -1,4 +1,5 @@
 import hmac
+import logging
 import os
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
@@ -8,6 +9,8 @@ from slowapi.errors import RateLimitExceeded
 from api.inference import run_inference
 from pydantic import BaseModel, ConfigDict, Field
 from typing import List, Optional
+
+logger = logging.getLogger(__name__)
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -73,7 +76,11 @@ def predict(
 ):
     """Run the model only for authenticated, bounded requests."""
 
-    result = run_inference(body.features)
+    try:
+        result = run_inference(body.features)
+    except (FileNotFoundError, RuntimeError, ValueError) as exc:
+        logger.warning("Verified model inference unavailable: %s", type(exc).__name__)
+        raise HTTPException(status_code=503, detail="Verified model unavailable") from exc
     return {"prediction": result}
 
 

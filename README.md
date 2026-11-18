@@ -165,7 +165,7 @@ Once running, open:
 |---------|-----|
 | Streamlit Dashboard | http://localhost:8501 |
 | Prometheus | http://localhost:9090 |
-| Grafana (admin / admin) | http://localhost:3000 |
+| Grafana (admin / configured `GF_ADMIN_PASSWORD`) | http://localhost:3000 |
 | Ingestion API (NGINX gateway) | http://localhost:8080 |
 | Drift Engine API | http://localhost:7070 |
 | LLM Guard API | http://localhost:8000 |
@@ -214,6 +214,10 @@ All configuration is via environment variables. Copy `.env.example` to `.env` an
 | `OLLAMA_HOST` | `http://ollama:11434` | Ollama endpoint (optional) |
 | `LLM_MODEL` | `llama2` | LLM model name |
 | `API_BEARER_TOKEN` | *(unset)* | Required shared bearer token for `POST /infer` and `POST /predict`; both endpoints return 503 until configured |
+| `SENTINEL_MODEL_CHECKPOINT` | *(unset)* | Optional filesystem path to a locally trained, reviewed `SentinelModel` state dictionary |
+| `SENTINEL_MODEL_SHA256` | *(unset)* | Required hexadecimal SHA-256 digest of that checkpoint; `POST /predict` returns 503 if missing or mismatched |
+
+**GPU inference trust boundary:** `POST /predict` never fabricates model outputs from newly initialized weights. Train a compatible 16-feature `SentinelModel` separately, save its state dictionary from trusted code, compute its SHA-256 digest and mount the reviewed artifact read-only. Both variables must be configured before predictions are enabled; the repo does not include a trained checkpoint or independently validated prediction-quality metrics.
 
 **Snowflake (optional):** set `WAREHOUSE_MODE=snowflake` and fill in `SNOWFLAKE_ACCOUNT`, `SNOWFLAKE_USER`, `SNOWFLAKE_PASSWORD`, `SNOWFLAKE_DATABASE`, `SNOWFLAKE_SCHEMA`, `SNOWFLAKE_WAREHOUSE`.
 
