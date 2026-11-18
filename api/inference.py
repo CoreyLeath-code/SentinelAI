@@ -54,9 +54,9 @@ def _get_model():
 
 
 def run_inference(features):
-    import torch
-
+    # Validate the checkpoint before importing the optional heavy torch runtime.
     model, device = _get_model()
+    import torch
     tensor = torch.tensor(features, dtype=torch.float32).to(device)
     with torch.no_grad():
         output = model(tensor)
