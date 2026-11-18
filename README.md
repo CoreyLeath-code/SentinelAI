@@ -165,7 +165,7 @@ Once running, open:
 |---------|-----|
 | Streamlit Dashboard | http://localhost:8501 |
 | Prometheus | http://localhost:9090 |
-| Grafana (admin / admin) | http://localhost:3000 |
+| Grafana (admin / configured `GF_ADMIN_PASSWORD`) | http://localhost:3000 |
 | Ingestion API (NGINX gateway) | http://localhost:8080 |
 | Drift Engine API | http://localhost:7070 |
 | LLM Guard API | http://localhost:8000 |
