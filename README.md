@@ -26,6 +26,17 @@
   <a href="LICENSE"><img alt="License MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" /></a>
 </p>
 
+## Reviewer map
+
+| Question | Evidence |
+|---|---|
+| What drift is measured? | [Formal decision rule](#formal-decision-rule) and [evidence snapshot](#evidence-snapshot) |
+| How can I reproduce measurements? | [Benchmark scope](#benchmark-scope-and-reproducibility) and [`benchmarks/`](benchmarks/) |
+| How is service behavior tested? | [`tests/`](tests/) and [CI workflows](.github/workflows/) |
+| What is optional infrastructure? | [AWS telemetry mirror](#-aws-telemetry-mirror--amazon-data-firehose--s3) and [configuration](#️-configuration) |
+
+**Measurement boundary:** the synthetic Python reference benchmark does not measure native C++ execution, network p95 latency, or real-world drift classification quality.
+
 ## Abstract
 
 SentinelAI is a multi-service observability prototype for AI systems. Its directly implemented statistical component compares an expected and an observed histogram with Population Stability Index (PSI) and a Kolmogorov–Smirnov (KS) CDF distance, then raises a drift flag when either configured threshold is crossed.
