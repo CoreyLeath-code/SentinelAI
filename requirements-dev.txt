@@ -1,6 +1,6 @@
 -r requirements.txt
 pytest>=7.0.0
 pytest-cov>=7.1.0
-ruff>=0.17.5
+ruff>=0.17.6
 bandit>=1.9.4
 pip-audit>=2.7.0
