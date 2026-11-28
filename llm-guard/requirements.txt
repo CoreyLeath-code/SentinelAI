@@ -1,7 +1,7 @@
 # Pinned runtime dependencies; review updates against the service's smoke tests.
 fastapi==0.163.2
 uvicorn[standard]==0.54.0
-pydantic==2.14.3
+pydantic==2.14.4
 psycopg2-binary==2.9.13
 requests==2.34.2
 prometheus-client==0.26.0
